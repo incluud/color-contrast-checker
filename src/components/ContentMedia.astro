@@ -1,0 +1,34 @@
+---
+import { Media } from 'accessible-astro-components'
+
+/**
+ * ContentMedia Component
+ *
+ * @description A component that displays content alongside media, with the option to reverse the image position
+ */
+interface Props {
+  /**
+   * The source URL for the image
+   */
+  imgSrc: string
+  /**
+   * Whether to display the image on the right side instead of the left
+   * @default false
+   */
+  reverseImg?: boolean
+}
+
+const { imgSrc, reverseImg = false }: Props = Astro.props
+---
+
+<section class="my-64">
+  <div class="container">
+    <div class="grid grid-cols-1 gap-24 md:grid-cols-2">
+      {!reverseImg ? <Media class="rounded-lg" src={imgSrc} /> : ''}
+      <div class="space-content flex flex-col justify-center">
+        <slot />
+      </div>
+      {reverseImg ? <Media class="rounded-lg" src={imgSrc} /> : ''}
+    </div>
+  </div>
+</section>

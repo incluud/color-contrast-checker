@@ -1,0 +1,47 @@
+---
+import { Icon } from 'astro-icon/components'
+
+/**
+ * SocialShares Component
+ *
+ * @description A component for sharing content on social media platforms
+ */
+interface Props {
+  /**
+   * The URL to share
+   * @default Current page URL
+   */
+  url?: string
+}
+
+const { url = Astro.url.href } = Astro.props
+---
+
+<ul class="ml-[-10px] flex flex-wrap gap-3 pt-4">
+  <li class="animate-bouncing">
+    <a
+      href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <span class="sr-only">Share on Facebook</span>
+      <Icon name="lucide:facebook" size={40} />
+    </a>
+  </li>
+  <li class="animate-bouncing">
+    <a href={`https://x.com/share?url=${encodeURIComponent(url)}`} target="_blank" rel="noopener noreferrer">
+      <span class="sr-only">Share on Twitter</span>
+      <Icon name="lucide:twitter" size={40} />
+    </a>
+  </li>
+  <li class="animate-bouncing">
+    <a
+      href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <span class="sr-only">Share on LinkedIn</span>
+      <Icon name="lucide:linkedin" size={40} />
+    </a>
+  </li>
+</ul>

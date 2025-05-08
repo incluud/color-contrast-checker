@@ -1,0 +1,99 @@
+---
+import DefaultLayout from '@layouts/DefaultLayout.astro'
+import PageHeader from '@components/PageHeader.astro'
+import { Card, Pagination } from 'accessible-astro-components'
+import { getCollection } from 'astro:content'
+import type { GetStaticPaths, Page } from 'astro'
+import type { CollectionEntry } from 'astro:content'
+
+// Import images directly for optimization
+import projectImage1 from '@assets/images/projects/project-image-1.png'
+import projectImage2 from '@assets/images/projects/project-image-2.png'
+import projectImage3 from '@assets/images/projects/project-image-3.png'
+import projectImage4 from '@assets/images/projects/project-image-4.png'
+import projectImage5 from '@assets/images/projects/project-image-5.png'
+import projectImage6 from '@assets/images/projects/project-image-6.png'
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const projects = await getCollection('projects')
+
+  const projectImages = [projectImage1, projectImage2, projectImage3, projectImage4, projectImage5, projectImage6]
+
+  const projectsWithImages = projects.map((project, index) => {
+    return {
+      ...project,
+      featuredImage: projectImages[index % projectImages.length],
+    }
+  })
+
+  return paginate(projectsWithImages, { pageSize: 6 })
+}) satisfies GetStaticPaths
+
+interface Props {
+  page: Page<CollectionEntry<'projects'> & { featuredImage: any }>
+}
+
+const { page } = Astro.props
+
+// Prepare pagination props
+const currentPage = page.currentPage
+const totalPages = Math.ceil(page.total / page.size)
+---
+
+<DefaultLayout
+  title="Portfolio"
+  description="A showcase of projects built with Astro Content Collections, demonstrating dynamic content management."
+>
+  <PageHeader
+    title="Portfolio"
+    subtitle='A showcase of projects built with Astro Content Collections, demonstrating dynamic content management and organization. Learn more about <a href="https://docs.astro.build/en/guides/content-collections/">Astro Content Collections</a> in the official documentation.'
+    bgType="bordered"
+  />
+  <section class="my-12">
+    <div class="container">
+      <p class="text-sm"><em>Project {page.start + 1} through {page.end + 1} of {page.total} total projects</em></p>
+      <ul class="my-3 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {
+          page.data.map((project) => (
+            <li>
+              <Card
+                imageComponent={project.featuredImage}
+                url={'/portfolio/' + project.id}
+                title={project.data.title}
+                footer={'Author: ' + project.data.author}
+              >
+                {project.data.description}
+              </Card>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="mt-12 grid place-content-center">
+        <Pagination
+          firstPage={page.url.prev ? '/portfolio' : null}
+          previousPage={page.url.prev ? page.url.prev : null}
+          nextPage={page.url.next ? page.url.next : null}
+          lastPage={page.url.next ? `/portfolio/${Math.ceil(page.total / page.size)}` : null}
+          currentPage={`${page.currentPage}`}
+          totalPages={`${Math.ceil(page.total / page.size)}`}
+          ariaLabel="Portfolio pagination"
+        />
+      </div>
+    </div>
+  </section>
+</DefaultLayout>
+
+<style lang="scss" is:global>
+  @use '../../assets/scss/base/mixins' as *;
+
+  .card {
+    h3 {
+      margin-block-end: var(--space-xs);
+      line-height: 0.75;
+    }
+
+    a {
+      @include text-decoration(transparent, var(--foreground-color), 4px, 2px);
+    }
+  }
+</style>

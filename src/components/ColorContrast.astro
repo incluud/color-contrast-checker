@@ -1,0 +1,345 @@
+---
+interface Props {
+  class?: string
+}
+
+const { class: className } = Astro.props
+
+import { Tabs, TabsList, TabsTab, TabsPanel } from 'accessible-astro-components'
+
+interface ColorGroup {
+  name: string
+  prefix: string
+  values: number[]
+}
+
+interface Theme {
+  name: string
+  id: string
+  description: string
+  textColor: string
+  bgVar: string
+}
+
+// Define color variants to test
+const colorGroups: ColorGroup[] = [
+  { name: 'Primary', prefix: 'primary', values: [100, 200, 300, 400, 500] },
+  { name: 'Secondary', prefix: 'secondary', values: [100, 200, 300, 400, 500] },
+  { name: 'Neutral', prefix: 'neutral', values: [100, 200, 300, 400, 500, 600, 700, 800, 900] },
+]
+
+// Define themes to test
+const themes: Theme[] = [
+  {
+    name: 'Light Mode',
+    id: 'light-mode',
+    description: 'Dark text on colored backgrounds',
+    textColor: '#1A1A1A',
+    bgVar: 'var(--color-neutral-100)',
+  },
+  {
+    name: 'Dark Mode',
+    id: 'dark-mode',
+    description: 'Light text on colored backgrounds',
+    textColor: '#FFFFFF',
+    bgVar: 'var(--color-neutral-900)',
+  },
+]
+---
+
+<div class={`color-contrast ${className || ''}`}>
+  <div class="tabs-wrapper">
+    <Tabs>
+      <TabsList>
+        {
+          themes.map((theme, index) => (
+            <TabsTab id={theme.id} controls={`${theme.id}-panel`} selected={index === 0}>
+              {theme.name}
+            </TabsTab>
+          ))
+        }
+      </TabsList>
+
+      {
+        themes.map((theme, index) => (
+          <TabsPanel id={`${theme.id}-panel`} labelledby={theme.id} selected={index === 0}>
+            <div class="theme-section">
+              <div class="theme-header">
+                <h2>{theme.name}</h2>
+                <p>{theme.description}</p>
+              </div>
+              <div class="color-categories">
+                {/* Three column layout for color categories */}
+                <div class="color-category">
+                  <h3>Primary Colors</h3>
+                  <div class="colors">
+                    {colorGroups[0].values.map((value) => (
+                      <div
+                        class="color-item"
+                        data-color-var={`--color-${colorGroups[0].prefix}-${value}`}
+                        data-theme-text-color={theme.textColor}
+                        style={`background-color: var(--color-${colorGroups[0].prefix}-${value})`}
+                      >
+                        <span class="color-name">
+                          {colorGroups[0].prefix} {value}
+                        </span>
+                        <span class="contrast-score" aria-live="polite" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div class="color-category">
+                  <h3>Secondary Colors</h3>
+                  <div class="colors">
+                    {colorGroups[1].values.map((value) => (
+                      <div
+                        class="color-item"
+                        data-color-var={`--color-${colorGroups[1].prefix}-${value}`}
+                        data-theme-text-color={theme.textColor}
+                        style={`background-color: var(--color-${colorGroups[1].prefix}-${value})`}
+                      >
+                        <span class="color-name">
+                          {colorGroups[1].prefix} {value}
+                        </span>
+                        <span class="contrast-score" aria-live="polite" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div class="color-category">
+                  <h3>Neutral Colors</h3>
+                  <div class="colors">
+                    {colorGroups[2].values.map((value) => (
+                      <div
+                        class="color-item"
+                        data-color-var={`--color-${colorGroups[2].prefix}-${value}`}
+                        data-theme-text-color={theme.textColor}
+                        style={`background-color: var(--color-${colorGroups[2].prefix}-${value})`}
+                      >
+                        <span class="color-name">
+                          {colorGroups[2].prefix} {value}
+                        </span>
+                        <span class="contrast-score" aria-live="polite" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsPanel>
+        ))
+      }
+    </Tabs>
+  </div>
+</div>
+
+<script>
+  // Initialize accessibility testing
+  function initializeContrastChecker(): void {
+    // Set up WCAG levels for testing
+    const wcagLevels: Array<{ name: string; ratio: number; className: string }> = [
+      { name: 'AAA', ratio: 7.0, className: 'excellent' },
+      { name: 'AA', ratio: 4.5, className: 'good' },
+      { name: 'AA Large', ratio: 3.0, className: 'fair' },
+      { name: 'Fail', ratio: 0, className: 'poor' },
+    ]
+
+    // Calculate relative luminance for RGB color
+    function getLuminance(r: number, g: number, b: number): number {
+      const sRGB: number[] = [r, g, b].map((val) => {
+        val = val / 255
+        return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4)
+      })
+      return 0.2126 * sRGB[0] + 0.7152 * sRGB[1] + 0.0722 * sRGB[2]
+    }
+
+    // Calculate contrast ratio between two colors
+    function getContrastRatio(rgb1: number[], rgb2: number[]): number {
+      const lum1: number = getLuminance(rgb1[0], rgb1[1], rgb1[2])
+      const lum2: number = getLuminance(rgb2[0], rgb2[1], rgb2[2])
+      const lighter: number = Math.max(lum1, lum2)
+      const darker: number = Math.min(lum1, lum2)
+      return (lighter + 0.05) / (darker + 0.05)
+    }
+
+    // Extract RGB values from a color string
+    function extractRGB(colorStr: string): number[] {
+      const canvas: HTMLCanvasElement = document.createElement('canvas')
+      const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d')
+      if (!ctx) return [0, 0, 0] // Handle null context
+
+      ctx.fillStyle = colorStr
+
+      // Fill a tiny rectangle with the color
+      ctx.fillRect(0, 0, 1, 1)
+
+      // Get the pixel data
+      const data: Uint8ClampedArray = ctx.getImageData(0, 0, 1, 1).data
+      return [data[0], data[1], data[2]]
+    }
+
+    // Find which WCAG level a contrast ratio meets
+    function getWCAGLevel(ratio: number): {
+      name: string
+      className: string
+      passes: boolean
+      ratio: string
+    } {
+      for (const level of wcagLevels) {
+        if (ratio >= level.ratio) {
+          const isPass = level.name !== 'Fail'
+
+          return {
+            name: level.name,
+            className: level.className,
+            passes: isPass,
+            ratio: ratio.toFixed(2),
+          }
+        }
+      }
+      return {
+        name: 'Fail',
+        className: 'poor',
+        passes: false,
+        ratio: ratio.toFixed(2),
+      }
+    }
+
+    // Get accurate computed color by rendering it
+    function getComputedColorValue(element: Element, property: string): string {
+      // Get the computed style
+      const style: CSSStyleDeclaration = window.getComputedStyle(element)
+      return style.getPropertyValue(property)
+    }
+
+    // Process all color items
+    function processColorItems(): void {
+      const colorItems: NodeListOf<Element> = document.querySelectorAll('.color-item')
+
+      colorItems.forEach((item) => {
+        // Get the background color
+        const bgColor: string = getComputedColorValue(item, 'background-color')
+        const bgRGB: number[] = extractRGB(bgColor)
+
+        // Get the text color for this theme section
+        const themeTextColor: string = item.getAttribute('data-theme-text-color') || '#1A1A1A'
+        const textRGB: number[] = extractRGB(themeTextColor)
+
+        // Calculate contrast ratio
+        const contrastRatio: number = getContrastRatio(bgRGB, textRGB)
+        const result = getWCAGLevel(contrastRatio)
+
+        // Update the contrast score
+        const scoreElement: Element | null = item.querySelector('.contrast-score')
+        if (scoreElement) {
+          scoreElement.textContent = `${result.ratio} ${result.name}`
+          scoreElement.className = `contrast-score ${result.className}`
+        }
+
+        // Set the text color for the color name
+        const nameElement: Element | null = item.querySelector('.color-name')
+        if (nameElement && nameElement instanceof HTMLElement) {
+          nameElement.style.color = themeTextColor
+        }
+      })
+    }
+
+    // Run contrast check when page loads
+    document.addEventListener('astro:page-load', processColorItems)
+
+    // Run contrast check when theme changes
+    document.addEventListener('astro:after-swap', processColorItems)
+  }
+
+  // Initialize the contrast checker
+  initializeContrastChecker()
+</script>
+
+<style lang="scss">
+  @use '../assets/scss/base/breakpoint' as *;
+
+  .color-contrast {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  .theme-section {
+    inline-size: 100%;
+  }
+
+  .theme-header {
+    margin-bottom: var(--space-m);
+  }
+
+  .theme-header h2 {
+    margin-bottom: var(--space-xs);
+  }
+
+  .theme-header p {
+    font-size: var(--font-size-2);
+  }
+
+  .color-categories {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-l);
+
+    @include breakpoint(l) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .color-category h3 {
+    margin-bottom: var(--space-xs);
+    font-size: var(--font-size-1);
+  }
+
+  .colors {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .color-item {
+    display: flex;
+    position: relative;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: var(--radius-s);
+    padding: var(--space-m);
+    block-size: 3rem;
+    font-weight: 500;
+  }
+
+  .contrast-score {
+    backdrop-filter: blur(4px);
+    border-radius: var(--radius-xs);
+    background-color: rgba(255, 255, 255, 0.25);
+    padding: var(--space-2xs) var(--space-3xs);
+    font-weight: 700;
+    font-size: var(--font-size--1);
+  }
+
+  .excellent {
+    background-color: rgb(9, 126, 87);
+    color: white;
+  }
+
+  .good {
+    background-color: rgb(41, 168, 126);
+    color: black;
+  }
+
+  .fair {
+    background-color: rgb(219, 141, 31);
+    color: black;
+  }
+
+  .poor {
+    background-color: rgb(221, 39, 54);
+    color: white;
+  }
+</style>

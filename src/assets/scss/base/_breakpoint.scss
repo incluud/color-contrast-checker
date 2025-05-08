@@ -1,0 +1,23 @@
+$breakpoints: (
+  'default': 0,
+  'xs': 320px,
+  's': 480px,
+  'm': 768px,
+  'l': 1024px,
+  'xl': 1280px,
+  '2xl': 1536px,
+) !default;
+
+@mixin breakpoint($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    @media (min-width: map-get($breakpoints, $breakpoint)) {
+      @content;
+    }
+  } @else if (type_of($breakpoint) == number) {
+    @media (min-width: #{$breakpoint}px) {
+      @content;
+    }
+  } @else {
+    @error "Not a correct value";
+  }
+}

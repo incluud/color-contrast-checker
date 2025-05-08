@@ -1,0 +1,101 @@
+---
+/**
+ * ResponsiveToggle Component
+ *
+ * @description A toggle button for mobile navigation
+ */
+interface Props {
+  /**
+   * Additional classes to apply to the ResponsiveToggle
+   */
+  class?: string
+}
+
+const { class: className } = Astro.props
+---
+
+<button class:list={[className, 'responsive-toggle']} aria-expanded="false" aria-label="Open menu navigation">
+  <span>Menu</span>
+  <svg width="26" height="21" aria-hidden="true" fill="var(--link-color)" xmlns="http://www.w3.org/2000/svg"
+    ><path
+      d="M2 1.667h24m-24 8h24m-24 8h24"
+      stroke="var(--foreground-color)"
+      stroke-width="2.667"
+      stroke-linecap="round"
+      stroke-linejoin="round"></path></svg
+  >
+</button>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    // variables
+    const responsiveToggle = document.querySelector('.responsive-toggle')
+    if (!responsiveToggle) return
+
+    // functions
+    const openMenu = (toggle: Element) => {
+      const text = toggle.querySelector('span')
+      const icon = toggle.querySelector('svg')
+      if (!text || !icon) return
+
+      text.textContent = 'Close'
+      toggle.setAttribute('aria-expanded', 'true')
+      toggle.setAttribute('aria-label', 'Close menu navigation')
+      icon.innerHTML = `<path d="M10 10 2 2m8 8 8 8m-8-8 8-8m-8 8-8 8" stroke="var(--foreground-color)" stroke-width="2.667" stroke-linecap="round" stroke-linejoin="round"/>`
+    }
+
+    const closeMenu = (toggle: Element) => {
+      const text = toggle.querySelector('span')
+      const icon = toggle.querySelector('svg')
+      if (!text || !icon) return
+
+      text.textContent = 'Menu'
+      toggle.setAttribute('aria-expanded', 'false')
+      toggle.setAttribute('aria-label', 'Open menu navigation')
+      icon.innerHTML = `<path d="M2 1.667h24m-24 8h24m-24 8h24" stroke="var(--foreground-color)" stroke-width="2.667" stroke-linecap="round" stroke-linejoin="round"/>`
+    }
+
+    // execution
+    responsiveToggle.addEventListener('click', () => {
+      const mobileNavigation = document.querySelector('.mobile-menu')
+      if (!mobileNavigation) return
+
+      mobileNavigation.classList.toggle('show')
+      mobileNavigation.classList.contains('show') ? openMenu(responsiveToggle) : closeMenu(responsiveToggle)
+    })
+  })
+</script>
+
+<style lang="scss">
+  @use '../assets/scss/base/breakpoint' as *;
+
+  .responsive-toggle {
+    display: none;
+    margin-block-start: 6px;
+    border: none;
+    background: transparent;
+    padding: 0;
+
+    span {
+      margin-inline-end: var(--space-3xs);
+    }
+
+    svg {
+      margin-block-start: 4px;
+      width: 30px;
+
+      path {
+        transition: fill var(--animation-speed-fast) var(--cubic-bezier);
+      }
+    }
+
+    &:where(:hover, :focus-visible) {
+      span {
+        text-decoration: underline;
+        text-decoration-style: wavy;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 7px;
+      }
+    }
+  }
+</style>

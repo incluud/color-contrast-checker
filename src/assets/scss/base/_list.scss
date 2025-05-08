@@ -1,0 +1,60 @@
+@use 'breakpoint' as *;
+
+ul:not([class]),
+ol:not([class]) {
+  margin-inline-start: var(--space-s);
+
+  ul,
+  ol {
+    padding-inline-start: var(--space-s);
+  }
+
+  li {
+    margin-block-end: var(--space-xs);
+  }
+}
+
+ul:not([class]) {
+  list-style-type: disc;
+}
+
+ol.incremented {
+  counter-reset: item;
+}
+
+ol.incremented ol {
+  counter-reset: item;
+}
+
+ol.incremented ol,
+ol.incremented ul {
+  margin: var(--space-xs) 0 0 var(--space-s);
+}
+
+ol.incremented li {
+  display: block;
+  margin-block-end: var(--space-xs);
+}
+
+@media screen and (max-width: 48rem) {
+  ol.incremented li {
+    margin-block-end: var(--space-xs);
+  }
+}
+
+ol.incremented li::before {
+  counter-increment: item;
+  content: counters(item, '.') '. ';
+}
+
+ol.incremented li:last-child {
+  margin-block-end: 0;
+}
+
+ol.incremented li p {
+  display: inline;
+}
+
+ol.incremented ul li::before {
+  content: '';
+}

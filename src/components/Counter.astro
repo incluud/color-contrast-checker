@@ -1,0 +1,35 @@
+---
+/**
+ * Counter Component
+ *
+ * @description A component that displays a number with a title and subtitle
+ */
+interface Props {
+  /**
+   * The number to display
+   */
+  count: string | number
+  /**
+   * The title text to display below the count
+   */
+  title: string
+  /**
+   * The subtitle text to display below the title
+   */
+  sub: string
+}
+
+const { count, title, sub } = Astro.props
+---
+
+<div class="animate text-center">
+  <p class="text-6xl font-bold">{count}</p>
+  <p class="text-4xl font-semibold">{title}</p>
+  <p class="text-2xl">{sub}</p>
+</div>
+
+<style lang="scss">
+  div > p:first-child {
+    color: var(--link-color);
+  }
+</style>
