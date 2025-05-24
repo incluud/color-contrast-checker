@@ -32,6 +32,24 @@ const {
     </main>
     <Footer />
     <style lang="scss" is:global>
+      :root {
+        --color-foreground-base: #4646ff;
+
+        --color-foreground-10: oklch(from var(--color-foreground-base) 90% c h);
+        --color-foreground-20: oklch(from var(--color-foreground-base) 80% c h);
+        --color-foreground-30: oklch(from var(--color-foreground-base) 70% c h);
+        --color-foreground-40: oklch(from var(--color-foreground-base) 60% c h);
+        --color-foreground-50: oklch(from var(--color-foreground-base) 50% c h);
+
+        --color-background-base: #e6e64a;
+
+        --color-background-10: oklch(from var(--color-background-base) 90% c h);
+        --color-background-20: oklch(from var(--color-background-base) 80% c h);
+        --color-background-30: oklch(from var(--color-background-base) 70% c h);
+        --color-background-40: oklch(from var(--color-background-base) 60% c h);
+        --color-background-50: oklch(from var(--color-background-base) 50% c h);
+      }
+
       // sticky footer on low content pages
       html,
       body {
@@ -56,6 +74,12 @@ const {
         border: 2px solid var(--link-color);
         border-radius: 0.35rem;
         padding: 1rem;
+      }
+
+      .interface {
+        display: grid;
+        grid-template-columns: 1fr 3fr;
+        gap: 2rem;
       }
     </style>
   </body>

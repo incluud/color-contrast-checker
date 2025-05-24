@@ -1,0 +1,28 @@
+---
+import Form from '@components/Form.astro'
+import Input from '@components/Input.astro'
+import AstroBadge from '@components/AstroBadge.astro'
+
+/**
+ * Controls Component
+ *
+ * @description A component that displays the controls for the color contrast checker
+ */
+---
+
+<div class="space-content p-6">
+  <h1>
+    Color Contrast Checker
+    <!-- <Icon name="lucide:contrast" /> -->
+  </h1>
+  <p>
+    This is a simple color contrast checker that allows you to check the contrast of a color against a background color
+    and shows examples of it in a fake UI.
+  </p>
+  <Form>
+    <Input label="Foreground Color" id="foreground-color" color="var(--color-foreground-base)" />
+    <Input label="Background Color" id="background-color" color="var(--color-background-base)" />
+    <!-- <button type="submit" class="button">Check contrast</button> -->
+  </Form>
+  <AstroBadge />
+</div>

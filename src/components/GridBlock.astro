@@ -1,0 +1,49 @@
+---
+interface Props {
+  /**
+   * Align the content vertically
+   */
+  align?: 'start' | 'center' | 'end' | 'stretch'
+}
+
+const { align = 'center' } = Astro.props
+
+/**
+ * GridBlock Component
+ *
+ * @description A component that displays a grid of items
+ */
+---
+
+<div class={`grid-block align-${align}`}>
+  <slot />
+</div>
+
+<style lang="scss">
+  .grid-block {
+    display: flex;
+    justify-content: center;
+    border: 1px solid var(--border-color-subtle);
+    border-radius: var(--radius-s);
+    padding: var(--space-s);
+    block-size: 250px;
+    overflow-x: clip;
+    overflow-y: scroll;
+
+    &.align-start {
+      align-items: flex-start;
+    }
+
+    &.align-center {
+      align-items: center;
+    }
+
+    &.align-end {
+      align-items: flex-end;
+    }
+
+    &.align-stretch {
+      align-items: stretch;
+    }
+  }
+</style>

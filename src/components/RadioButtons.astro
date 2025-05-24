@@ -1,0 +1,93 @@
+---
+// Imports (remove or replace this comment)
+
+interface Props {
+  /**
+   * Additional classes to apply to the RadioButton
+   */
+  class?: string
+  /**
+   * The legend text for the fieldset
+   */
+  legend?: string
+  /**
+   * Array of radio button options
+   */
+  options?: Array<{ id: string; label: string; value: string }>
+  /**
+   * The name attribute for the radio group
+   */
+  name?: string
+  /**
+   * Whether the radio selection is required
+   */
+  required?: boolean
+}
+
+/**
+ * RadioButton Component
+ *
+ * @description Custom styled radio buttons with accessible structure
+ */
+
+const {
+  class: className,
+  legend = "Who's your favorite Pokémon?",
+  name = 'pokemon',
+  required = true,
+  options = [
+    { id: 'astro', label: 'Astro', value: 'astro' },
+    { id: 'vue', label: 'Vue', value: 'vue' },
+  ],
+} = Astro.props
+---
+
+<div class:list={[className, 'custom-radio-button']}>
+  <fieldset class="custom-radio-button">
+    <legend class="mb-4 text-xl font-bold">{legend}</legend>
+    {
+      options.map((option, index) => (
+        <label for={option.id} class="group mb-2 flex cursor-pointer flex-row-reverse items-center justify-end">
+          {option.label}
+          <input
+            id={option.id}
+            type="radio"
+            name={name}
+            value={option.value}
+            aria-required={required}
+            checked={index === 0}
+            class="absolute -z-10 opacity-0"
+          />
+          <span class="indicator me-2 flex h-5 w-5 items-center justify-center rounded-full border-2 border-gray-400 bg-white transition-colors duration-200 group-focus-within:border-orange-500 group-hover:border-orange-500" />
+        </label>
+      ))
+    }
+  </fieldset>
+</div>
+
+<style>
+  .indicator::after {
+    display: none;
+    transition: all var(--animation-speed-fast) var(--cubic-bezier);
+    border-radius: 50%;
+    background: var(--color-background-10);
+    width: 7px;
+    height: 7px;
+    content: '';
+  }
+
+  input:checked ~ .indicator {
+    border-color: var(--color-background-10);
+    background-color: var(--background-color);
+  }
+
+  input:checked ~ .indicator::after {
+    display: block;
+  }
+
+  /* Enhanced focus styles for better accessibility */
+  input:focus-visible ~ .indicator {
+    outline: 2px solid var(--color-foreground-10);
+    outline-offset: 2px;
+  }
+</style>

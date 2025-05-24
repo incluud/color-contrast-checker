@@ -1,0 +1,67 @@
+---
+import DefaultLayout from '@layouts/DefaultLayout.astro'
+import Controls from '@components/Controls.astro'
+import UserInterface from '@components/UserInterface.astro'
+import ColorPalettes from '@components/ColorPalettes.astro'
+import { Code } from 'astro-expressive-code/components'
+import { Icon } from 'astro-icon/components'
+---
+
+<DefaultLayout title="Home">
+  <section class="interface">
+    <Controls />
+    <UserInterface>
+      <div slot="header">
+        <a href="/" class="flex items-center gap-2">
+          <Icon name="lucide:sparkles" size="1.5rem" />
+          Render UI grid
+        </a>
+      </div>
+      <div slot="body" class="wrapper">
+        <div class="space-content">
+          <h2 class="text-2xl font-bold">Color palettes</h2>
+          <p>
+            The color palettes are generated from the foreground and background colors. The foreground color is the base
+            color, and the background color is the color of the container.
+          </p>
+          <p>
+            Use these in your own project to create a consistent color scheme. Visual represetation of the shades bases
+            on your selected fore- and background colors:
+          </p>
+          <ColorPalettes />
+        </div>
+        <Code
+          code={`
+ :root {
+  --color-foreground-base: #4646ff;
+
+  --color-foreground-10: oklch(from var(--color-foreground-base) 90% c h);
+  --color-foreground-20: oklch(from var(--color-foreground-base) 80% c h);
+  --color-foreground-30: oklch(from var(--color-foreground-base) 70% c h);
+  --color-foreground-40: oklch(from var(--color-foreground-base) 60% c h);
+  --color-foreground-50: oklch(from var(--color-foreground-base) 50% c h);
+
+  --color-background-base: #e6e64a;
+
+  --color-background-10: oklch(from var(--color-background-base) 90% c h);
+  --color-background-20: oklch(from var(--color-background-base) 80% c h);
+  --color-background-30: oklch(from var(--color-background-base) 70% c h);
+  --color-background-40: oklch(from var(--color-background-base) 60% c h);
+  --color-background-50: oklch(from var(--color-background-base) 50% c h);
+}
+`}
+          lang="css"
+        />
+      </div>
+    </UserInterface>
+  </section>
+</DefaultLayout>
+
+<style lang="scss">
+  .wrapper {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+    padding-block: var(--space-s);
+  }
+</style>

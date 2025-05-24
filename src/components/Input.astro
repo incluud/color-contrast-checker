@@ -1,0 +1,72 @@
+---
+interface Props {
+  /**
+   * The label of the input
+   */
+  label: string
+  /**
+   * The id of the input
+   */
+  id: string
+  /**
+   * The preview color (optional)
+   */
+  color?: string
+}
+
+const { label, id, color } = Astro.props
+
+/**
+ * Input Component
+ *
+ * @description A component that displays a label and an input field
+ */
+---
+
+<div class="input">
+  <label for={id}>{label}</label>
+  <div class={`input__field ${color ? 'input__color' : ''}`}>
+    <input type="text" id={id} />
+    {color && <div class="input__color__preview" />}
+  </div>
+</div>
+
+<style lang="scss" define:vars={{ previewColor: color }}>
+  .input {
+    label {
+      display: block;
+      margin-block-end: var(--space-2xs);
+      font-weight: 600;
+    }
+
+    input {
+      border: 1px solid light-dark(var(--color-neutral-300), var(--color-neutral-500));
+      border-radius: var(--radius-s);
+      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-900));
+      padding: var(--space-2xs) var(--space-xs);
+      inline-size: 100%;
+    }
+
+    &__field {
+      display: flex;
+      position: relative;
+    }
+
+    &__color {
+      align-items: center;
+      gap: var(--space-2xs);
+
+      &__preview {
+        position: absolute;
+        translate: -8px -8px;
+        inset-block-end: 0;
+        inset-inline-end: 0;
+        border-radius: var(--radius-s);
+        background-color: var(--previewColor);
+        aspect-ratio: 1;
+        inline-size: 2rem;
+        block-size: 2rem;
+      }
+    }
+  }
+</style>

@@ -1,0 +1,46 @@
+---
+/**
+ * ColorPalettes Component
+ *
+ * @description A component that displays the color palettes for the color contrast checker
+ */
+---
+
+<div class="color-palettes">
+  <p class="mb-2 text-sm">Foreground shades</p>
+  <div class="color-palettes__background mb-6">
+    <div style="background-color: var(--color-background-10);"></div>
+    <div style="background-color: var(--color-background-20);"></div>
+    <div style="background-color: var(--color-background-30);"></div>
+    <div style="background-color: var(--color-background-40);"></div>
+    <div style="background-color: var(--color-background-50);"></div>
+  </div>
+  <p class="mb-2 text-sm">Background shades</p>
+  <div class="color-palettes__foreground">
+    <div style="background-color: var(--color-foreground-10);"></div>
+    <div style="background-color: var(--color-foreground-20);"></div>
+    <div style="background-color: var(--color-foreground-30);"></div>
+    <div style="background-color: var(--color-foreground-40);"></div>
+    <div style="background-color: var(--color-foreground-50);"></div>
+  </div>
+</div>
+
+<style lang="scss">
+  .color-palettes {
+    display: flex;
+    flex-direction: column;
+    margin-block-start: var(--space-2xs);
+
+    &__foreground,
+    &__background {
+      display: flex;
+      gap: var(--space-3xs);
+
+      > div {
+        border-radius: var(--radius-s);
+        inline-size: 2rem;
+        block-size: 2rem;
+      }
+    }
+  }
+</style>

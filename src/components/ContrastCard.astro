@@ -1,0 +1,69 @@
+---
+import { Icon } from 'astro-icon/components'
+
+/**
+ * ContrastCard Component
+ *
+ * @description A component that displays a contrast card
+ */
+---
+
+<div class="contrast-card">
+  <div class="contrast-card__header">
+    <h2 class="text-4xl">
+      <span class="flex items-center gap-2">
+        <Icon name="lucide:circle-x" size="2.5rem" />
+        Fail
+      </span>
+      <span class="text-6xl">3.5:1</span>
+    </h2>
+  </div>
+  <div class="contrast-card__body">
+    <p class="flex items-center gap-2 text-2xl">
+      <span>Small text</span>
+      <span class="flex gap-1">
+        <Icon name="lucide:star" />
+        <Icon name="lucide:star" />
+        <Icon name="lucide:star-off" />
+        <Icon name="lucide:star-off" />
+        <Icon name="lucide:star-off" />
+      </span>
+    </p>
+    <p class="flex items-center gap-2 text-2xl">
+      <span>Large text</span>
+      <span class="flex gap-1">
+        <Icon name="lucide:star" />
+        <Icon name="lucide:star" />
+        <Icon name="lucide:star" />
+        <Icon name="lucide:star" />
+        <Icon name="lucide:star-off" />
+      </span>
+    </p>
+  </div>
+</div>
+
+<style lang="scss">
+  .contrast-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-radius: var(--radius-s);
+    background-color: var(--color-background-base);
+    padding: var(--space-m);
+    inline-size: 100%;
+    block-size: 100%;
+    color: var(--color-foreground-base);
+
+    &__header h2 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    &__body {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2xs);
+    }
+  }
+</style>

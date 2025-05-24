@@ -1,5 +1,4 @@
 ---
-import CallToAction from './CallToAction.astro'
 import ExternalLink from './ExternalLink.astro'
 import Logo from './Logo.astro'
 
@@ -12,57 +11,36 @@ const currentYear = new Date().getFullYear()
 ---
 
 <footer>
-  <CallToAction />
   <section class="py-20">
     <h2 class="sr-only">Footer</h2>
-    <div class="container grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+    <div class="container grid gap-8">
       <div class="flex flex-col gap-4">
-        <h3 class="text-2xl font-bold">Navigation</h3>
-        <ul class="flex flex-col gap-2">
-          <li><a href="/">Home</a></li>
-          <li><a href="/blog">Blog</a></li>
-          <li><a href="/portfolio">Portfolio</a></li>
-        </ul>
-      </div>
-      <div class="flex flex-col gap-4">
-        <h3 class="text-2xl font-bold">Theme features</h3>
-        <ul class="flex flex-col gap-2">
-          <li><a href="/accessibility-statement">Accessibility statement</a></li>
-          <li><a href="/accessible-components">Accessible components</a></li>
-          <li><a href="/color-contrast-checker">Color contrast checker</a></li>
-          <li><a href="/markdown-page">Markdown page</a></li>
-          <li><a href="/mdx-page">MDX page</a></li>
-          <li><a href="/404-page">404 page</a></li>
-        </ul>
-      </div>
-      <div class="flex flex-col gap-4">
-        <h3 class="text-2xl font-bold">Developer tools</h3>
+        <h3 class="text-2xl font-bold">Accessible Astro</h3>
         <ul class="flex flex-col gap-2">
           <li>
-            <ExternalLink href="https://www.w3.org/WAI/ARIA/apg/">ARIA Authoring Practices</ExternalLink>
+            <ExternalLink href="https://accessible-astro-starter.incluud.dev">Accessible Astro Starter</ExternalLink>
           </li>
           <li>
-            <ExternalLink href="https://web.dev/articles/focus">Focus Management</ExternalLink>
-          </li>
-          <li>
-            <ExternalLink href="https://developer.mozilla.org/en-US/docs/Learn/Accessibility/HTML"
-              >Semantic HTML Guide</ExternalLink
+            <ExternalLink href="https://accessible-astro-dashboard.incluud.dev">Accessible Astro Dashboard</ExternalLink
             >
           </li>
           <li>
-            <ExternalLink href="https://www.tpgi.com/screen-reader-user-survey-results/"
-              >Screen Reader Survey</ExternalLink
+            <ExternalLink href="https://accessible-astro-starter.incluud.dev/accessible-components"
+              >Accessible Astro Components</ExternalLink
             >
+          </li>
+          <li>
+            <ExternalLink href="https://accessible-astro-docs.incluud.dev">Accessible Astro Docs</ExternalLink>
           </li>
         </ul>
       </div>
       <div class="flex flex-col gap-4">
         <Logo loading="lazy" />
-        <p class="leading-[1.75]">
-          Tip: always test for screen reader support. Press <kbd>⌘</kbd> + <kbd>F5</kbd> to start VoiceOver or <kbd
-            >Win</kbd
-          >
-          + <kbd>Ctrl</kbd> + <kbd>Enter</kbd> for Narrator.
+        <p class="">
+          Incluud is an initiative by @markteekman and @peterpadberg with a shared mission: To create accessible,
+          user-friendly, and inclusive digital experiences for everyone. Incluud is a community of developers,
+          designers, and accessibility experts who are passionate about creating accessible, user-friendly, and
+          inclusive digital experiences for everyone.
         </p>
       </div>
     </div>
@@ -84,5 +62,9 @@ const currentYear = new Date().getFullYear()
 <style>
   section {
     border-top: 1px solid var(--border-color-subtle);
+
+    > .container.grid {
+      grid-template-columns: 1fr 2fr;
+    }
   }
 </style>

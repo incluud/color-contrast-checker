@@ -1,0 +1,78 @@
+---
+import { Icon } from 'astro-icon/components'
+
+interface Props {
+  /**
+   * The icon to display
+   */
+  icon: string
+  /**
+   * The label to display
+   */
+  label: string
+  /**
+   * The progress value
+   */
+  progress: number
+}
+
+/**
+ * ProgressBar Component
+ *
+ * @description A component that displays a progress bar
+ */
+
+const { icon = 'lucide:eye', label = 'Vision', progress = 80 } = Astro.props as Props
+---
+
+<div class="progress-bar">
+  <div class="label">
+    <Icon name={icon} aria-hidden="true" size="3.5rem" />
+  </div>
+  <div class="progress">
+    <span>{label}</span>
+    <div class="bar">
+      <div class="fill" style={`width: ${progress}%`}>
+        <span class="sr-only">{progress}% van de 100%</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style lang="scss">
+  .progress-bar {
+    --color-gradient: linear-gradient(to right, var(--color-foreground-10), var(--color-foreground-50));
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-s);
+    inline-size: 100%;
+
+    .progress {
+      display: flex;
+      flex-direction: column;
+      inline-size: 100%;
+      block-size: 100%;
+      text-align-last: left;
+
+      span {
+        margin-bottom: 0.25rem;
+        color: var(--neutral-100);
+      }
+    }
+
+    .bar {
+      border-radius: var(--radius-s);
+      background-color: var(--color-background-10);
+      inline-size: 100%;
+      block-size: var(--space-s);
+
+      .fill {
+        border-radius: var(--radius-s);
+        background-image: var(--color-gradient);
+        block-size: 100%;
+      }
+    }
+  }
+</style>

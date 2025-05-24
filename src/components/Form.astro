@@ -1,0 +1,23 @@
+---
+/**
+ * Form Component
+ *
+ * @description A dynamic form component that accepts multiple inputs as children
+ */
+---
+
+<div class="form">
+  <div class="form__inputs">
+    <slot />
+  </div>
+</div>
+
+<style lang="scss">
+  .form {
+    &__inputs {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+  }
+</style>
