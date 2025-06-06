@@ -4,55 +4,285 @@ import { Icon } from 'astro-icon/components'
 /**
  * ContrastCard Component
  *
- * @description A component that displays a contrast card
+ * @description A dynamic component that displays real-time contrast analysis
+ * with WCAG compliance ratings and pass/fail status
  */
 ---
 
-<div class="contrast-card">
+<div class="contrast-card" id="contrast-card">
   <div class="contrast-card__header">
     <h2 class="text-4xl">
-      <span class="flex items-center gap-2">
-        <Icon name="lucide:circle-x" size="2.5rem" />
-        Fail
+      <span class="flex items-center gap-2" id="status-indicator">
+        <Icon name="lucide:loader-2" size="2.5rem" class="animate-spin" />
+        <span id="status-text">Loading...</span>
       </span>
-      <span class="text-6xl">3.5:1</span>
+      <span class="text-6xl" id="contrast-ratio">-:-</span>
     </h2>
   </div>
   <div class="contrast-card__body">
     <p class="flex items-center gap-2 text-2xl">
       <span>Small text</span>
-      <span class="flex gap-1">
-        <Icon name="lucide:star" />
-        <Icon name="lucide:star" />
-        <Icon name="lucide:star-off" />
-        <Icon name="lucide:star-off" />
-        <Icon name="lucide:star-off" />
+      <span class="flex gap-1" id="small-text-stars" aria-label="Small text WCAG compliance rating">
+        <!-- Stars will be generated dynamically -->
       </span>
     </p>
     <p class="flex items-center gap-2 text-2xl">
       <span>Large text</span>
-      <span class="flex gap-1">
-        <Icon name="lucide:star" />
-        <Icon name="lucide:star" />
-        <Icon name="lucide:star" />
-        <Icon name="lucide:star" />
-        <Icon name="lucide:star-off" />
+      <span class="flex gap-1" id="large-text-stars" aria-label="Large text WCAG compliance rating">
+        <!-- Stars will be generated dynamically -->
       </span>
     </p>
+
+    <!-- Hidden elements for screen readers -->
+    <div class="sr-only" aria-live="polite" id="contrast-announcement"></div>
   </div>
 </div>
+
+<script is:inline>
+  function initializeContrastCard() {
+    if (!window.ColorManager) {
+      setTimeout(initializeContrastCard, 100)
+      return
+    }
+
+    const contrastCard = document.getElementById('contrast-card')
+    const statusIndicator = document.getElementById('status-indicator')
+    const statusText = document.getElementById('status-text')
+    const contrastRatio = document.getElementById('contrast-ratio')
+    const smallTextStars = document.getElementById('small-text-stars')
+    const largeTextStars = document.getElementById('large-text-stars')
+    const contrastAnnouncement = document.getElementById('contrast-announcement')
+
+    if (
+      !contrastCard ||
+      !statusIndicator ||
+      !statusText ||
+      !contrastRatio ||
+      !smallTextStars ||
+      !largeTextStars ||
+      !contrastAnnouncement
+    ) {
+      console.error('ContrastCard: Required DOM elements not found')
+      return
+    }
+
+    /**
+     * Generate star rating HTML based on WCAG compliance level
+     * @param {number} level - WCAG compliance level (0-5)
+     * @returns {string} HTML string for stars
+     */
+    function generateStars(level) {
+      let starsHtml = ''
+      for (let i = 0; i < 5; i++) {
+        const isActive = i < level
+        starsHtml += `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          ${
+            isActive
+              ? '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>'
+              : '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="none" stroke="currentColor" stroke-width="2"/>'
+          }
+        </svg>`
+      }
+      return starsHtml
+    }
+
+    /**
+     * Calculate WCAG star rating based on contrast ratio
+     * @param {number} ratio - Contrast ratio
+     * @param {boolean} isLargeText - Whether this is for large text
+     * @returns {number} Star rating (0-5)
+     */
+    function calculateStarRating(ratio, isLargeText = false) {
+      if (isLargeText) {
+        // Large text thresholds (18pt+ or 14pt+ bold)
+        if (ratio >= 7) return 5 // AAA+ (excellent)
+        if (ratio >= 4.5) return 4 // AAA (good)
+        if (ratio >= 3) return 3 // AA (pass)
+        if (ratio >= 2) return 2 // Nearly there
+        if (ratio >= 1.5) return 1 // Poor
+        return 0 // Fail
+      } else {
+        // Small text thresholds
+        if (ratio >= 7) return 5 // AAA+ (excellent)
+        if (ratio >= 4.5) return 4 // AAA (good)
+        if (ratio >= 4.5) return 3 // AA (pass)
+        if (ratio >= 3) return 2 // Nearly there
+        if (ratio >= 2) return 1 // Poor
+        return 0 // Fail
+      }
+    }
+
+    /**
+     * Get WCAG compliance status
+     * @param {number} ratio - Contrast ratio
+     * @returns {object} Status information
+     */
+    function getComplianceStatus(ratio) {
+      const smallTextAA = ratio >= 4.5
+      const smallTextAAA = ratio >= 7
+      const largeTextAA = ratio >= 3
+      const largeTextAAA = ratio >= 4.5
+
+      if (smallTextAAA && largeTextAAA) {
+        return {
+          level: 'AAA',
+          status: 'Pass',
+          icon: 'lucide:shield-check',
+          description: 'Excellent accessibility - exceeds all WCAG requirements',
+        }
+      } else if (smallTextAA && largeTextAA) {
+        return {
+          level: 'AA',
+          status: 'Pass',
+          icon: 'lucide:check-circle',
+          description: 'Good accessibility - meets WCAG AA requirements',
+        }
+      } else if (largeTextAA) {
+        return {
+          level: 'Partial',
+          status: 'Partial',
+          icon: 'lucide:alert-triangle',
+          description: 'Limited accessibility - only suitable for large text',
+        }
+      } else {
+        return {
+          level: 'Fail',
+          status: 'Fail',
+          icon: 'lucide:circle-x',
+          description: 'Poor accessibility - does not meet WCAG requirements',
+        }
+      }
+    }
+
+    /**
+     * Update the contrast card display
+     */
+    function updateContrastCard() {
+      try {
+        const foregroundColor = window.ColorManager.getForegroundColor()
+        const backgroundColor = window.ColorManager.getBackgroundColor()
+
+        if (!foregroundColor || !backgroundColor) {
+          return
+        }
+
+        // Calculate contrast ratio
+        const ratio = window.ColorManager.getContrastRatio()
+
+        if (ratio === null) {
+          return
+        }
+
+        // Update contrast ratio display
+        contrastRatio.textContent = `${ratio.toFixed(1)}:1`
+
+        // Get compliance status
+        const compliance = getComplianceStatus(ratio)
+
+        // Update status indicator
+        statusText.textContent = compliance.status
+
+        // Create appropriate icon based on status
+        let iconSvg = ''
+        switch (compliance.status) {
+          case 'Pass':
+            if (compliance.level === 'AAA') {
+              // Shield check icon for AAA
+              iconSvg =
+                '<svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1l3.5 7 7 1-5 5 1 7-6.5-3.5L5.5 21l1-7-5-5 7-1L12 1z"/></svg>'
+            } else {
+              // Check circle icon for AA
+              iconSvg =
+                '<svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg>'
+            }
+            break
+          case 'Partial':
+            // Warning triangle icon
+            iconSvg =
+              '<svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13" stroke="white" stroke-width="2"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="white" stroke-width="2"/></svg>'
+            break
+          default: // Fail
+            // X circle icon
+            iconSvg =
+              '<svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15" stroke="white" stroke-width="2"/><line x1="9" y1="9" x2="15" y2="15" stroke="white" stroke-width="2"/></svg>'
+        }
+
+        statusIndicator.innerHTML = `${iconSvg}<span>${compliance.status}</span>`
+
+        // Update status styling
+        contrastCard.className = `contrast-card contrast-card--${compliance.status.toLowerCase()}`
+
+        // Update star ratings
+        const smallStars = calculateStarRating(ratio, false)
+        const largeStars = calculateStarRating(ratio, true)
+
+        smallTextStars.innerHTML = generateStars(smallStars)
+        largeTextStars.innerHTML = generateStars(largeStars)
+
+        // Announce changes to screen readers
+        contrastAnnouncement.textContent =
+          `Contrast ratio ${ratio.toFixed(1)} to 1. ${compliance.description}. ` +
+          `Small text: ${smallStars} out of 5 stars. Large text: ${largeStars} out of 5 stars.`
+      } catch (error) {
+        console.error('ContrastCard: Error updating display:', error)
+      }
+    }
+
+    // Initialize display
+    updateContrastCard()
+
+    // Listen for color changes
+    document.addEventListener('colorManagerUpdate', updateContrastCard)
+
+    // Also listen for direct storage changes (for cross-tab updates)
+    window.addEventListener('storage', (e) => {
+      if (e.key && e.key.startsWith('colorManager')) {
+        updateContrastCard()
+      }
+    })
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeContrastCard)
+  } else {
+    initializeContrastCard()
+  }
+
+  // Re-initialize on view transitions
+  document.addEventListener('astro:page-load', () => {
+    setTimeout(initializeContrastCard, 100)
+  })
+</script>
 
 <style lang="scss">
   .contrast-card {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
     border-radius: var(--radius-s);
     background-color: var(--color-background-base);
     padding: var(--space-m);
     inline-size: 100%;
     block-size: 100%;
     color: var(--color-foreground-base);
+
+    &--pass {
+      box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.1);
+      border-color: #10b981; // emerald-500
+    }
+
+    &--partial {
+      box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.1);
+      border-color: #f59e0b; // amber-500
+    }
+
+    &--fail {
+      box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.1);
+      border-color: #ef4444; // red-500
+    }
 
     &__header h2 {
       display: flex;
@@ -64,6 +294,43 @@ import { Icon } from 'astro-icon/components'
       display: flex;
       flex-direction: column;
       gap: var(--space-2xs);
+    }
+
+    // Star styling
+    #small-text-stars,
+    #large-text-stars {
+      svg {
+        transition: all 0.2s ease;
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+    }
+
+    // Loading animation
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    // Screen reader only content
+    .sr-only {
+      position: absolute;
+      margin: -1px;
+      padding: 0;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+      white-space: nowrap;
     }
   }
 </style>

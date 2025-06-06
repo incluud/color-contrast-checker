@@ -3,7 +3,7 @@ import { ColorManager } from './colorManager'
 // Make ColorManager available globally
 declare global {
   interface Window {
-    colorManager: ColorManager
+    ColorManager: ColorManager
     // Add input value storage functions
     storeInputValue: (inputId: string, value: string) => void
     getStoredInputValue: (inputId: string) => string
@@ -36,22 +36,22 @@ function getStoredInputValue(inputId: string): string {
 }
 
 // Initialize and expose ColorManager and functions globally
-window.colorManager = ColorManager.getInstance()
+window.ColorManager = ColorManager.getInstance()
 window.storeInputValue = storeInputValue
 window.getStoredInputValue = getStoredInputValue
 
 // Initialize on DOM ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
-    window.colorManager.init()
+    window.ColorManager.init()
   })
 } else {
-  window.colorManager.init()
+  window.ColorManager.init()
 }
 
 // Handle view transitions
 document.addEventListener('astro:page-load', () => {
-  window.colorManager.init()
+  window.ColorManager.init()
 })
 
 export {} // Ensure this is treated as a module

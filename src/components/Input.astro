@@ -36,7 +36,7 @@ const { label, id, color } = Astro.props
 <script is:inline>
   // Wait for global functions to be available
   function waitForGlobals(callback) {
-    if (window.colorManager && window.storeInputValue && window.getStoredInputValue) {
+    if (window.ColorManager && window.storeInputValue && window.getStoredInputValue) {
       callback()
     } else {
       setTimeout(() => waitForGlobals(callback), 50)
@@ -45,7 +45,7 @@ const { label, id, color } = Astro.props
 
   function initializeInputs() {
     waitForGlobals(() => {
-      const colorManager = window.colorManager
+      const colorManager = window.ColorManager
 
       // Get all color inputs (fresh query each time)
       const textInputs = document.querySelectorAll('[data-color-input]')
@@ -70,6 +70,18 @@ const { label, id, color } = Astro.props
         }
         input.removeAttribute('aria-invalid')
         input.classList.remove('error')
+      }
+
+      // Dispatch event to notify other components
+      function notifyColorChange() {
+        document.dispatchEvent(
+          new CustomEvent('colorManagerUpdate', {
+            detail: {
+              foreground: colorManager.getForegroundColor(),
+              background: colorManager.getBackgroundColor(),
+            },
+          }),
+        )
       }
 
       // Handle text input changes (only for real-time sync, no validation)
@@ -105,6 +117,9 @@ const { label, id, color } = Astro.props
             input.value = hex
             // Store the normalized value
             window.storeInputValue(input.id, hex)
+
+            // Notify other components of the change
+            notifyColorChange()
           }
         }
       }
@@ -148,6 +163,9 @@ const { label, id, color } = Astro.props
           input.value = hex
           // Store the normalized value
           window.storeInputValue(input.id, hex)
+
+          // Notify other components of the change
+          notifyColorChange()
         }
       }
 
@@ -178,6 +196,9 @@ const { label, id, color } = Astro.props
             window.storeInputValue(textInput.id, value)
           }
         }
+
+        // Notify other components of the change
+        notifyColorChange()
       }
 
       // Remove existing event listeners by cloning elements
