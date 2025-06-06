@@ -79,8 +79,8 @@ import { Icon } from 'astro-icon/components'
           <GridBlock>
             <div class="flex w-full flex-col gap-4">
               <ProgressBar icon="lucide:eye" label="Vision" progress={80} />
-              <ProgressBar icon="lucide:ear" label="Vision" progress={80} />
-              <ProgressBar icon="lucide:hand" label="Touch" progress={80} />
+              <ProgressBar icon="lucide:ear" label="Hearing" progress={60} />
+              <ProgressBar icon="lucide:hand" label="Touch" progress={40} />
             </div>
           </GridBlock>
           <GridBlock>
@@ -103,7 +103,6 @@ import { Icon } from 'astro-icon/components'
           }
 
           &:nth-child(5) {
-            // grid-row: span 2;
             grid-column: span 2;
             block-size: 100%;
           }
@@ -147,8 +146,14 @@ import { Icon } from 'astro-icon/components'
         }
       }
 
+      .badge {
+        border-color: var(--color-background-50);
+        background-color: var(--color-background-10);
+        color: var(--color-foreground-50);
+      }
+
       .button {
-        border-color: var(--color-background-10);
+        border-color: var(--color-background-50);
         background-color: var(--color-background-10);
         color: var(--color-foreground-50);
       }

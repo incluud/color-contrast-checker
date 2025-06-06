@@ -1,6 +1,6 @@
 {
-  "name": "accessible-astro-starter",
-  "description": "An Accessible Starter Theme for Astro including several accessibility features and tools to help you build faster.",
+  "name": "color-contrast-checker",
+  "description": "A color contrast checker for Astro with a color palette generator",
   "version": "4.0.0",
   "author": "Incluud",
   "license": "MIT",
@@ -33,9 +33,11 @@
     "url": "https://github.com/incluud/accessible-astro-starter/issues"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.4",
     "@astrojs/mdx": "^4.2.5",
     "@astrojs/partytown": "^2.1.4",
     "@iconify-json/lucide": "^1.2.39",
+    "@types/culori": "^4.0.0",
     "@typescript-eslint/eslint-plugin": "^8.31.0",
     "@typescript-eslint/parser": "^8.31.0",
     "astro": "^5.7.5",
@@ -51,11 +53,13 @@
     "sanitize-html": "^2.16.0",
     "sass": "^1.87.0",
     "svgo": "^3.3.2",
-    "tailwindcss": "^4.1.4"
+    "tailwindcss": "^4.1.4",
+    "typescript": "^5.8.3"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.4",
     "accessible-astro-components": "^4.1.1",
-    "astro-expressive-code": "^0.41.2"
+    "astro-expressive-code": "^0.41.2",
+    "culori": "^4.0.1"
   }
 }

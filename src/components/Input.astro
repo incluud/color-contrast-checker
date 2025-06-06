@@ -19,17 +19,238 @@ const { label, id, color } = Astro.props
 /**
  * Input Component
  *
- * @description A component that displays a label and an input field
+ * @description A component that displays a label and dual input fields (text + color picker)
  */
 ---
 
 <div class="input">
   <label for={id}>{label}</label>
-  <div class={`input__field ${color ? 'input__color' : ''}`}>
-    <input type="text" id={id} />
+  <div class="input__field">
+    <input type="text" id={id} data-color-input aria-describedby={`${id}-error`} />
+    <input type="color" id={`${id}-picker`} data-color-picker />
     {color && <div class="input__color__preview" />}
   </div>
+  <div id={`${id}-error`} class="input__error" aria-live="polite"></div>
 </div>
+
+<script is:inline>
+  // Wait for global functions to be available
+  function waitForGlobals(callback) {
+    if (window.colorManager && window.storeInputValue && window.getStoredInputValue) {
+      callback()
+    } else {
+      setTimeout(() => waitForGlobals(callback), 50)
+    }
+  }
+
+  function initializeInputs() {
+    waitForGlobals(() => {
+      const colorManager = window.colorManager
+
+      // Get all color inputs (fresh query each time)
+      const textInputs = document.querySelectorAll('[data-color-input]')
+      const colorPickers = document.querySelectorAll('[data-color-picker]')
+
+      // Show/hide error message
+      function showError(input, message) {
+        const errorElement = document.getElementById(`${input.id}-error`)
+        if (errorElement) {
+          errorElement.textContent = message
+          errorElement.style.display = 'block'
+        }
+        input.setAttribute('aria-invalid', 'true')
+        input.classList.add('error')
+      }
+
+      function clearError(input) {
+        const errorElement = document.getElementById(`${input.id}-error`)
+        if (errorElement) {
+          errorElement.textContent = ''
+          errorElement.style.display = 'none'
+        }
+        input.removeAttribute('aria-invalid')
+        input.classList.remove('error')
+      }
+
+      // Handle text input changes (only for real-time sync, no validation)
+      function handleTextInputChange(event) {
+        const input = event.target
+        const value = input.value.trim()
+
+        // Store the current input value
+        window.storeInputValue(input.id, input.value)
+
+        if (!value) return
+
+        // Only sync if it's a valid color (no error display)
+        if (colorManager.isValidColor(value)) {
+          clearError(input)
+
+          const hex = colorManager.toHex(value)
+          if (hex) {
+            // Update color manager
+            if (input.id === 'foreground-color') {
+              colorManager.setForegroundColor(hex)
+              // Sync with color picker
+              const picker = document.getElementById('foreground-color-picker')
+              if (picker) picker.value = hex
+            } else if (input.id === 'background-color') {
+              colorManager.setBackgroundColor(hex)
+              // Sync with color picker
+              const picker = document.getElementById('background-color-picker')
+              if (picker) picker.value = hex
+            }
+
+            // Update text input with normalized hex value
+            input.value = hex
+            // Store the normalized value
+            window.storeInputValue(input.id, hex)
+          }
+        }
+      }
+
+      // Handle text input validation (only on blur)
+      function handleTextInputValidation(event) {
+        const input = event.target
+        const value = input.value.trim()
+
+        if (!value) {
+          clearError(input)
+          return
+        }
+
+        const isValid = colorManager.isValidColor(value)
+
+        if (!isValid) {
+          showError(input, 'Please enter a valid color (e.g., #ff0000, red, rgb(255,0,0))')
+          return
+        }
+
+        // If valid, clear error and update
+        clearError(input)
+
+        const hex = colorManager.toHex(value)
+        if (hex) {
+          // Update color manager
+          if (input.id === 'foreground-color') {
+            colorManager.setForegroundColor(hex)
+            // Sync with color picker
+            const picker = document.getElementById('foreground-color-picker')
+            if (picker) picker.value = hex
+          } else if (input.id === 'background-color') {
+            colorManager.setBackgroundColor(hex)
+            // Sync with color picker
+            const picker = document.getElementById('background-color-picker')
+            if (picker) picker.value = hex
+          }
+
+          // Update text input with normalized hex value
+          input.value = hex
+          // Store the normalized value
+          window.storeInputValue(input.id, hex)
+        }
+      }
+
+      // Handle color picker changes
+      function handleColorPicker(event) {
+        const picker = event.target
+        const value = picker.value
+
+        // Update color manager
+        if (picker.id === 'foreground-color-picker') {
+          colorManager.setForegroundColor(value)
+          // Sync with text input
+          const textInput = document.getElementById('foreground-color')
+          if (textInput) {
+            textInput.value = value
+            clearError(textInput)
+            // Store the text input value
+            window.storeInputValue(textInput.id, value)
+          }
+        } else if (picker.id === 'background-color-picker') {
+          colorManager.setBackgroundColor(value)
+          // Sync with text input
+          const textInput = document.getElementById('background-color')
+          if (textInput) {
+            textInput.value = value
+            clearError(textInput)
+            // Store the text input value
+            window.storeInputValue(textInput.id, value)
+          }
+        }
+      }
+
+      // Remove existing event listeners by cloning elements
+      textInputs.forEach((input) => {
+        const newInput = input.cloneNode(true)
+        input.parentNode.replaceChild(newInput, input)
+      })
+
+      colorPickers.forEach((picker) => {
+        const newPicker = picker.cloneNode(true)
+        picker.parentNode.replaceChild(newPicker, picker)
+      })
+
+      // Re-query after cloning to get fresh elements
+      const newTextInputs = document.querySelectorAll('[data-color-input]')
+      const newColorPickers = document.querySelectorAll('[data-color-picker]')
+
+      // Set initial values on the NEW elements
+      function setInitialValues() {
+        newTextInputs.forEach((input) => {
+          // Try localStorage first
+          const storedValue = window.getStoredInputValue(input.id)
+          if (storedValue) {
+            input.value = storedValue
+          } else {
+            // Fallback to ColorManager
+            if (input.id === 'foreground-color') {
+              input.value = colorManager.getForegroundColor()
+            } else if (input.id === 'background-color') {
+              input.value = colorManager.getBackgroundColor()
+            }
+          }
+        })
+
+        newColorPickers.forEach((picker) => {
+          if (picker.id === 'foreground-color-picker') {
+            picker.value = colorManager.getForegroundColor()
+          } else if (picker.id === 'background-color-picker') {
+            picker.value = colorManager.getBackgroundColor()
+          }
+        })
+      }
+
+      // Add event listeners
+      newTextInputs.forEach((input) => {
+        // Real-time sync on input (no validation errors)
+        input.addEventListener('input', handleTextInputChange)
+        // Validation only on blur
+        input.addEventListener('blur', handleTextInputValidation)
+      })
+
+      newColorPickers.forEach((picker) => {
+        picker.addEventListener('input', handleColorPicker)
+        picker.addEventListener('change', handleColorPicker)
+      })
+
+      // Set initial values on the NEW elements
+      setInitialValues()
+    })
+  }
+
+  // Initialize on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeInputs)
+  } else {
+    initializeInputs()
+  }
+
+  // Re-initialize on view transitions
+  document.addEventListener('astro:page-load', () => {
+    setTimeout(initializeInputs, 50)
+  })
+</script>
 
 <style lang="scss" define:vars={{ previewColor: color }}>
   .input {
@@ -39,34 +260,86 @@ const { label, id, color } = Astro.props
       font-weight: 600;
     }
 
-    input {
-      border: 1px solid light-dark(var(--color-neutral-300), var(--color-neutral-500));
-      border-radius: var(--radius-s);
-      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-900));
-      padding: var(--space-2xs) var(--space-xs);
-      inline-size: 100%;
-    }
-
     &__field {
       display: flex;
       position: relative;
-    }
-
-    &__color {
       align-items: center;
       gap: var(--space-2xs);
 
-      &__preview {
-        position: absolute;
-        translate: -8px -8px;
-        inset-block-end: 0;
-        inset-inline-end: 0;
+      input[type='text'] {
+        flex: 1;
+        transition: border-color 0.2s ease;
+        border: 1px solid light-dark(var(--color-neutral-300), var(--color-neutral-500));
         border-radius: var(--radius-s);
-        background-color: var(--previewColor);
-        aspect-ratio: 1;
-        inline-size: 2rem;
-        block-size: 2rem;
+        background-color: light-dark(var(--color-neutral-100), var(--color-neutral-900));
+        padding: var(--space-2xs) var(--space-xs);
+        font-size: 0.9rem;
+        font-family: monospace;
+
+        &.error,
+        &[aria-invalid='true'] {
+          border-color: var(--color-error, #e53e3e);
+        }
+
+        &:focus {
+          outline: 2px solid var(--color-focus, #3182ce);
+          outline-offset: 1px;
+        }
       }
+
+      input[type='color'] {
+        cursor: pointer;
+        border: 1px solid light-dark(var(--color-neutral-300), var(--color-neutral-500));
+        border-radius: var(--radius-s);
+        background: none;
+        padding: 0;
+        inline-size: 3rem;
+        block-size: 2.5rem;
+
+        &:focus {
+          outline: 2px solid var(--color-focus, #3182ce);
+          outline-offset: 1px;
+        }
+
+        // Remove default color picker styling in WebKit browsers
+        &::-webkit-color-swatch-wrapper {
+          border-radius: var(--radius-s);
+          padding: 0;
+        }
+
+        &::-webkit-color-swatch {
+          border: none;
+          border-radius: var(--radius-s);
+        }
+
+        // Remove default color picker styling in Firefox
+        &::-moz-color-swatch {
+          border: none;
+          border-radius: var(--radius-s);
+        }
+      }
+    }
+
+    &__error {
+      display: none;
+      margin-block-start: var(--space-3xs);
+      color: var(--color-error, #e53e3e);
+      font-weight: 500;
+      font-size: 0.875rem;
+    }
+
+    &__color__preview {
+      position: absolute;
+      translate: -8px -8px;
+      opacity: 0; /* Hidden for now since we have the color picker */
+      inset-block-end: 0;
+      inset-inline-end: 0;
+      border-radius: var(--radius-s);
+      background-color: var(--previewColor);
+      aspect-ratio: 1;
+      inline-size: 2rem;
+      block-size: 2rem;
+      pointer-events: none;
     }
   }
 </style>
