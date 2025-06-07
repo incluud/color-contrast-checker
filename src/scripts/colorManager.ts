@@ -48,11 +48,17 @@ export class ColorManager {
   }
 
   /**
-   * Load colors from localStorage if available
+   * Load colors from URL parameters first, then localStorage as fallback
    */
   private loadFromStorage(): void {
     if (typeof window === 'undefined') return
 
+    // First, try to load from URL parameters
+    if (this.loadFromURLParams()) {
+      return // URL params found and loaded successfully
+    }
+
+    // Fallback to localStorage
     try {
       const stored = localStorage.getItem(ColorManager.STORAGE_KEY)
       if (stored) {
@@ -62,6 +68,68 @@ export class ColorManager {
       }
     } catch (error) {
       console.warn('Failed to load colors from localStorage:', error)
+    }
+  }
+
+  /**
+   * Load colors from URL parameters
+   * @returns true if URL parameters were found and loaded
+   */
+  private loadFromURLParams(): boolean {
+    if (typeof window === 'undefined') return false
+
+    try {
+      const urlParams = new URLSearchParams(window.location.search)
+      const fgParam = urlParams.get('fg')
+      const bgParam = urlParams.get('bg')
+
+      if (fgParam || bgParam) {
+        if (fgParam) {
+          // Add # prefix if not present
+          const fgColor = fgParam.startsWith('#') ? fgParam : `#${fgParam}`
+          if (this.isValidColor(fgColor)) {
+            const hex = this.toHex(fgColor)
+            if (hex) this.foregroundColor = hex
+          }
+        }
+
+        if (bgParam) {
+          // Add # prefix if not present
+          const bgColor = bgParam.startsWith('#') ? bgParam : `#${bgParam}`
+          if (this.isValidColor(bgColor)) {
+            const hex = this.toHex(bgColor)
+            if (hex) this.backgroundColor = hex
+          }
+        }
+
+        return true // URL params were processed
+      }
+    } catch (error) {
+      console.warn('Failed to load colors from URL parameters:', error)
+    }
+
+    return false
+  }
+
+  /**
+   * Update URL parameters with current colors (without creating history entry)
+   */
+  private updateURLParams(): void {
+    if (typeof window === 'undefined') return
+
+    try {
+      const url = new URL(window.location.href)
+      // Strip # prefix for cleaner URLs (we'll add it back when reading)
+      const fgParam = this.foregroundColor.startsWith('#') ? this.foregroundColor.slice(1) : this.foregroundColor
+      const bgParam = this.backgroundColor.startsWith('#') ? this.backgroundColor.slice(1) : this.backgroundColor
+
+      url.searchParams.set('fg', fgParam)
+      url.searchParams.set('bg', bgParam)
+
+      // Use replaceState to update URL without creating history entry
+      window.history.replaceState({}, '', url.toString())
+    } catch (error) {
+      console.warn('Failed to update URL parameters:', error)
     }
   }
 
@@ -109,6 +177,7 @@ export class ColorManager {
     this.foregroundColor = hex
     this.updateCSSVariables()
     this.saveToStorage()
+    this.updateURLParams()
     this.dispatchColorChangeEvent()
     return true
   }
@@ -125,6 +194,7 @@ export class ColorManager {
     this.backgroundColor = hex
     this.updateCSSVariables()
     this.saveToStorage()
+    this.updateURLParams()
     this.dispatchColorChangeEvent()
     return true
   }
@@ -249,6 +319,9 @@ export class ColorManager {
 
     // Update CSS variables
     this.updateCSSVariables()
+
+    // Update URL parameters to reflect current state
+    this.updateURLParams()
 
     // Mark as initialized
     this.isInitialized = true
