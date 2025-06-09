@@ -201,15 +201,20 @@ const { label, id, color } = Astro.props
         notifyColorChange()
       }
 
-      // Remove existing event listeners by cloning elements
+      // Store current focus and selection before cleaning up listeners
+      const activeElement = document.activeElement
+      const isTextInput = activeElement && activeElement.matches('[data-color-input]')
+      const selectionStart = isTextInput ? activeElement.selectionStart : null
+      const selectionEnd = isTextInput ? activeElement.selectionEnd : null
+      const activeId = isTextInput ? activeElement.id : null
+
+      // Remove existing event listeners with replaceWith to preserve focus
       textInputs.forEach((input) => {
-        const newInput = input.cloneNode(true)
-        input.parentNode.replaceChild(newInput, input)
+        input.replaceWith(input.cloneNode(true))
       })
 
       colorPickers.forEach((picker) => {
-        const newPicker = picker.cloneNode(true)
-        picker.parentNode.replaceChild(newPicker, picker)
+        picker.replaceWith(picker.cloneNode(true))
       })
 
       // Re-query after cloning to get fresh elements
@@ -257,6 +262,15 @@ const { label, id, color } = Astro.props
 
       // Set initial values on the NEW elements
       setInitialValues()
+
+      // Restore focus and selection if there was an active text input
+      if (activeId && selectionStart !== null && selectionEnd !== null) {
+        const restoredInput = document.getElementById(activeId)
+        if (restoredInput) {
+          restoredInput.focus()
+          restoredInput.setSelectionRange(selectionStart, selectionEnd)
+        }
+      }
     })
   }
 

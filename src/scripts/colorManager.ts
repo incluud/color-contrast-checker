@@ -58,16 +58,18 @@ export class ColorManager {
       return // URL params found and loaded successfully
     }
 
-    // Fallback to localStorage
-    try {
-      const stored = localStorage.getItem(ColorManager.STORAGE_KEY)
-      if (stored) {
-        const { foregroundColor, backgroundColor } = JSON.parse(stored) as ColorState
-        this.foregroundColor = foregroundColor || this.foregroundColor
-        this.backgroundColor = backgroundColor || this.backgroundColor
+    // Fallback to localStorage (with browser environment check)
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        const stored = localStorage.getItem(ColorManager.STORAGE_KEY)
+        if (stored) {
+          const { foregroundColor, backgroundColor } = JSON.parse(stored) as ColorState
+          this.foregroundColor = foregroundColor || this.foregroundColor
+          this.backgroundColor = backgroundColor || this.backgroundColor
+        }
+      } catch (error) {
+        console.warn('Failed to load colors from localStorage:', error)
       }
-    } catch (error) {
-      console.warn('Failed to load colors from localStorage:', error)
     }
   }
 
@@ -111,33 +113,47 @@ export class ColorManager {
     return false
   }
 
+  // Debounce timer for URL updates
+  private urlUpdateTimeout: number | null = null
+
   /**
    * Update URL parameters with current colors (without creating history entry)
    */
   private updateURLParams(): void {
     if (typeof window === 'undefined') return
 
-    try {
-      const url = new URL(window.location.href)
-      // Strip # prefix for cleaner URLs (we'll add it back when reading)
-      const fgParam = this.foregroundColor.startsWith('#') ? this.foregroundColor.slice(1) : this.foregroundColor
-      const bgParam = this.backgroundColor.startsWith('#') ? this.backgroundColor.slice(1) : this.backgroundColor
-
-      url.searchParams.set('fg', fgParam)
-      url.searchParams.set('bg', bgParam)
-
-      // Use replaceState to update URL without creating history entry
-      window.history.replaceState({}, '', url.toString())
-    } catch (error) {
-      console.warn('Failed to update URL parameters:', error)
+    // Clear existing timeout
+    if (this.urlUpdateTimeout) {
+      clearTimeout(this.urlUpdateTimeout)
     }
+
+    // Debounce URL updates to prevent rapid changes during color picker dragging
+    this.urlUpdateTimeout = window.setTimeout(() => {
+      try {
+        const url = new URL(window.location.href)
+        // Strip # prefix for cleaner URLs (we'll add it back when reading)
+        const fgParam = this.foregroundColor.startsWith('#') ? this.foregroundColor.slice(1) : this.foregroundColor
+        const bgParam = this.backgroundColor.startsWith('#') ? this.backgroundColor.slice(1) : this.backgroundColor
+
+        url.searchParams.set('fg', fgParam)
+        url.searchParams.set('bg', bgParam)
+
+        // Use replaceState to update URL without creating history entry
+        window.history.replaceState({}, '', url.toString())
+      } catch (error) {
+        // Only log if it's not a rate limiting error
+        if (error instanceof Error && !error.message?.includes('insecure')) {
+          console.warn('Failed to update URL parameters:', error)
+        }
+      }
+    }, 150) // 150ms debounce
   }
 
   /**
    * Save current colors to localStorage
    */
   private saveToStorage(): void {
-    if (typeof window === 'undefined') return
+    if (typeof window === 'undefined' || !window.localStorage) return
 
     try {
       const state: ColorState = {
@@ -299,7 +315,7 @@ export class ColorManager {
     if (typeof window === 'undefined') return
 
     window.dispatchEvent(
-      new CustomEvent('colorsChanged', {
+      new CustomEvent('colorManagerUpdate', {
         detail: {
           foregroundColor: this.foregroundColor,
           backgroundColor: this.backgroundColor,

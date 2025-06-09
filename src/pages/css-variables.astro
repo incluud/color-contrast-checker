@@ -133,15 +133,20 @@ import { Tabs, TabsList, TabsTab, TabsPanel } from 'accessible-astro-components'
   <script is:inline>
     function initializeDynamicCodeBlocks() {
       if (!window.ColorManager) {
-        setTimeout(initializeDynamicCodeBlocks, 100)
+        requestAnimationFrame(initializeDynamicCodeBlocks)
         return
       }
 
+      // Only initialize if we're on the CSS variables page
       const developersContainer = document.getElementById('developers-panel')
-      const designersContainer = document.getElementById('designers-panel')
+      if (!developersContainer) {
+        // Silently return - we're probably on a different page
+        return
+      }
 
-      if (!developersContainer || !designersContainer) {
-        console.error('Code containers not found')
+      const designersContainer = document.getElementById('designers-panel')
+      if (!designersContainer) {
+        console.error('CSS Variables: designers-panel not found, but developers-panel exists')
         return
       }
 
@@ -180,8 +185,8 @@ import { Tabs, TabsList, TabsTab, TabsPanel } from 'accessible-astro-components'
           let text = textNode.textContent
           let hasChanged = false
 
-          // Only process text nodes that contain hex colors
-          if (/#[a-fA-F0-9]{6}/.test(text)) {
+          // Only process text nodes that contain hex colors (3, 6, or 8 digits)
+          if (/#[a-fA-F0-9]{3,8}/.test(text)) {
             // Check the context around this text node to determine color type
             let contextElement = textNode.parentElement
             let contextText = ''
@@ -196,8 +201,8 @@ import { Tabs, TabsList, TabsTab, TabsPanel } from 'accessible-astro-components'
               contextElement = contextElement.parentElement
             }
 
-            // Replace hex color based on context
-            text = text.replace(/#[a-fA-F0-9]{6}/g, (match) => {
+            // Replace hex color based on context (supports 3, 6, and 8 digit hex)
+            text = text.replace(/#[a-fA-F0-9]{3,8}/g, (match) => {
               hasChanged = true
 
               if (contextText.includes('foreground-base')) {
@@ -220,15 +225,22 @@ import { Tabs, TabsList, TabsTab, TabsPanel } from 'accessible-astro-components'
       // Initialize with current colors
       updateCodeBlocks()
 
+      // Clean up any existing listeners first
+      document.removeEventListener('colorManagerUpdate', updateCodeBlocks)
+      window.removeEventListener('storage', updateCodeBlocks)
+
       // Listen for color changes
       document.addEventListener('colorManagerUpdate', updateCodeBlocks)
 
-      // Also listen for storage changes (cross-tab updates)
-      window.addEventListener('storage', (e) => {
-        if (e.key && e.key.startsWith('colorManager')) {
+      // Storage change handler for cross-tab updates
+      const storageHandler = (e) => {
+        if (e.key === 'color-contrast-checker') {
           updateCodeBlocks()
         }
-      })
+      }
+
+      // Also listen for storage changes (cross-tab updates)
+      window.addEventListener('storage', storageHandler)
     }
 
     // Initialize when DOM is ready
@@ -240,7 +252,7 @@ import { Tabs, TabsList, TabsTab, TabsPanel } from 'accessible-astro-components'
 
     // Re-initialize on view transitions
     document.addEventListener('astro:page-load', () => {
-      setTimeout(initializeDynamicCodeBlocks, 100)
+      requestAnimationFrame(initializeDynamicCodeBlocks)
     })
   </script>
 

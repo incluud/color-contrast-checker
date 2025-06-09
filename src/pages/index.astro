@@ -23,25 +23,16 @@ import { Icon } from 'astro-icon/components'
       </div>
       <div slot="body">
         <div class="grid-blocks">
-          <GridBlock>
+          <GridBlock label="Button">
             <a href="#" class="button">Astro rocks!</a>
           </GridBlock>
-          <GridBlock>
+          <GridBlock label="Badge">
             <div class="flex flex-col gap-4">
-              <Badge type="info" size="lg">New merch</Badge>
-              <Badge type="success" size="lg">New merch</Badge>
-              <Badge type="warning" size="lg">New merch</Badge>
-              <Badge type="error" size="lg">New merch</Badge>
+              <Badge size="lg">New merch</Badge>
             </div>
           </GridBlock>
-          <GridBlock align="center">
+          <GridBlock label="Accordion" align="center">
             <Accordion>
-              <AccordionItem title="What's on your mind?" variant="chevron">
-                <p>I'm thinking about the meaning of life. I'm thinking about the meaning of life.</p>
-              </AccordionItem>
-              <AccordionItem title="What's on your mind?" variant="chevron">
-                <p>I'm thinking about the meaning of life. I'm thinking about the meaning of life.</p>
-              </AccordionItem>
               <AccordionItem title="What's on your mind?" variant="chevron">
                 <p>I'm thinking about the meaning of life. I'm thinking about the meaning of life.</p>
               </AccordionItem>
@@ -120,25 +111,19 @@ import { Icon } from 'astro-icon/components'
       .accordion {
         inline-size: 100%;
 
-        .item {
-          :global(.wrapper) {
-            border: 1px solid var(--background-color);
-            background-color: var(--color-background-10);
-          }
-        }
-
-        :global(.item:first-child .wrapper) {
-          border-radius: var(--radius-s) var(--radius-s) 0 0;
-        }
-
-        :global(.item:last-child .wrapper) {
-          border-radius: 0 0 var(--radius-s) var(--radius-s);
+        :global(.wrapper) {
+          border-radius: var(--radius-s);
+          background-color: var(--color-background-base);
         }
 
         :global(.title),
         :global(.content) {
-          padding-inline: var(--space-s);
-          color: var(--color-foreground-50);
+          padding-inline: var(--space-xs);
+          color: var(--color-foreground-base);
+        }
+
+        :global(.title) {
+          padding-block: 0;
         }
 
         :global(.title) {
@@ -147,19 +132,19 @@ import { Icon } from 'astro-icon/components'
       }
 
       .badge {
-        border-color: var(--color-background-50);
-        background-color: var(--color-background-10);
-        color: var(--color-foreground-50);
+        border-color: var(--color-background-base);
+        background-color: var(--color-background-base);
+        color: var(--color-foreground-base);
       }
 
       .button {
-        border-color: var(--color-background-50);
-        background-color: var(--color-background-10);
-        color: var(--color-foreground-50);
+        border-color: var(--color-background-base);
+        background-color: var(--color-background-base);
+        color: var(--color-foreground-base);
       }
 
       .text-block {
-        color: var(--color-background-10);
+        color: var(--color-foreground-base);
       }
     </style>
   </section>

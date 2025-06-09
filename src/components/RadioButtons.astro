@@ -70,15 +70,15 @@ const {
     display: none;
     transition: all var(--animation-speed-fast) var(--cubic-bezier);
     border-radius: 50%;
-    background: var(--color-background-10);
+    background: var(--color-foreground-base);
     width: 7px;
     height: 7px;
     content: '';
   }
 
   input:checked ~ .indicator {
-    border-color: var(--color-background-10);
-    background-color: var(--background-color);
+    border-color: var(--color-background-base);
+    background-color: transparent;
   }
 
   input:checked ~ .indicator::after {
@@ -87,7 +87,7 @@ const {
 
   /* Enhanced focus styles for better accessibility */
   input:focus-visible ~ .indicator {
-    outline: 2px solid var(--color-foreground-10);
+    outline: 2px solid var(--color-foreground-base);
     outline-offset: 2px;
   }
 </style>

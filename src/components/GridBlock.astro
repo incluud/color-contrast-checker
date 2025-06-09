@@ -4,9 +4,13 @@ interface Props {
    * Align the content vertically
    */
   align?: 'start' | 'center' | 'end' | 'stretch'
+  /**
+   * Label for the grid block
+   */
+  label?: string
 }
 
-const { align = 'center' } = Astro.props
+const { align = 'center', label } = Astro.props
 
 /**
  * GridBlock Component
@@ -16,12 +20,14 @@ const { align = 'center' } = Astro.props
 ---
 
 <div class={`grid-block align-${align}`}>
+  {label && <span class="grid-block-label">{label}</span>}
   <slot />
 </div>
 
 <style lang="scss">
   .grid-block {
     display: flex;
+    position: relative;
     justify-content: center;
     border: 1px solid var(--border-color-subtle);
     border-radius: var(--radius-s);
@@ -44,6 +50,14 @@ const { align = 'center' } = Astro.props
 
     &.align-stretch {
       align-items: stretch;
+    }
+
+    &-label {
+      position: absolute;
+      inset-block-start: var(--space-3xs);
+      inset-inline-start: var(--space-3xs);
+      color: rgba(from var(--foreground-color) r g b / 0.5);
+      font-size: var(--font-size--2);
     }
   }
 </style>

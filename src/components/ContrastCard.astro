@@ -41,11 +41,18 @@ import { Icon } from 'astro-icon/components'
 <script is:inline>
   function initializeContrastCard() {
     if (!window.ColorManager) {
-      setTimeout(initializeContrastCard, 100)
+      requestAnimationFrame(initializeContrastCard)
       return
     }
 
+    // Only initialize if we're on a page that has the contrast card
     const contrastCard = document.getElementById('contrast-card')
+    if (!contrastCard) {
+      // Silently return - we're probably on a different page
+      return
+    }
+
+    // Get elements - use optional chaining and fallbacks for missing elements
     const statusIndicator = document.getElementById('status-indicator')
     const statusText = document.getElementById('status-text')
     const contrastRatio = document.getElementById('contrast-ratio')
@@ -53,18 +60,7 @@ import { Icon } from 'astro-icon/components'
     const largeTextStars = document.getElementById('large-text-stars')
     const contrastAnnouncement = document.getElementById('contrast-announcement')
 
-    if (
-      !contrastCard ||
-      !statusIndicator ||
-      !statusText ||
-      !contrastRatio ||
-      !smallTextStars ||
-      !largeTextStars ||
-      !contrastAnnouncement
-    ) {
-      console.error('ContrastCard: Required DOM elements not found')
-      return
-    }
+    // Continue even if some elements are missing - they'll just not update
 
     /**
      * Generate star rating HTML based on WCAG compliance level
@@ -94,20 +90,21 @@ import { Icon } from 'astro-icon/components'
      */
     function calculateStarRating(ratio, isLargeText = false) {
       if (isLargeText) {
-        // Large text thresholds (18pt+ or 14pt+ bold)
+        // Large text thresholds (18pt+ or 14pt+ bold) - easier to read, lower requirements
         if (ratio >= 7) return 5 // AAA+ (excellent)
-        if (ratio >= 4.5) return 4 // AAA (good)
-        if (ratio >= 3) return 3 // AA (pass)
-        if (ratio >= 2) return 2 // Nearly there
-        if (ratio >= 1.5) return 1 // Poor
+        if (ratio >= 4.5) return 5 // AAA (excellent) - same as above since it exceeds AAA
+        if (ratio >= 3) return 4 // AA (good) - meets WCAG AA for large text
+        if (ratio >= 2.5) return 3 // Nearly AA (acceptable)
+        if (ratio >= 2) return 2 // Poor but readable for large text
+        if (ratio >= 1.5) return 1 // Very poor
         return 0 // Fail
       } else {
-        // Small text thresholds
-        if (ratio >= 7) return 5 // AAA+ (excellent)
-        if (ratio >= 4.5) return 4 // AAA (good)
-        if (ratio >= 4.5) return 3 // AA (pass)
-        if (ratio >= 3) return 2 // Nearly there
-        if (ratio >= 2) return 1 // Poor
+        // Small text thresholds - harder to read, higher requirements
+        if (ratio >= 7) return 5 // AAA (excellent)
+        if (ratio >= 4.5) return 4 // AA (good)
+        if (ratio >= 3) return 3 // Close to AA (acceptable)
+        if (ratio >= 2) return 2 // Poor
+        if (ratio >= 1.5) return 1 // Very poor
         return 0 // Fail
       }
     }
@@ -173,14 +170,18 @@ import { Icon } from 'astro-icon/components'
           return
         }
 
-        // Update contrast ratio display
-        contrastRatio.textContent = `${ratio.toFixed(1)}:1`
+        // Update contrast ratio display (with fallback)
+        if (contrastRatio) {
+          contrastRatio.textContent = `${ratio.toFixed(1)}:1`
+        }
 
         // Get compliance status
         const compliance = getComplianceStatus(ratio)
 
-        // Update status indicator
-        statusText.textContent = compliance.status
+        // Update status indicator (with fallback)
+        if (statusText) {
+          statusText.textContent = compliance.status
+        }
 
         // Create appropriate icon based on status
         let iconSvg = ''
@@ -207,22 +208,32 @@ import { Icon } from 'astro-icon/components'
               '<svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15" stroke="white" stroke-width="2"/><line x1="9" y1="9" x2="15" y2="15" stroke="white" stroke-width="2"/></svg>'
         }
 
-        statusIndicator.innerHTML = `${iconSvg}<span>${compliance.status}</span>`
+        if (statusIndicator) {
+          statusIndicator.innerHTML = `${iconSvg}<span>${compliance.status}</span>`
+        }
 
-        // Update status styling
-        contrastCard.className = `contrast-card contrast-card--${compliance.status.toLowerCase()}`
+        // Update status styling (with fallback)
+        if (contrastCard) {
+          contrastCard.className = `contrast-card contrast-card--${compliance.status.toLowerCase()}`
+        }
 
-        // Update star ratings
+        // Update star ratings (with fallbacks)
         const smallStars = calculateStarRating(ratio, false)
         const largeStars = calculateStarRating(ratio, true)
 
-        smallTextStars.innerHTML = generateStars(smallStars)
-        largeTextStars.innerHTML = generateStars(largeStars)
+        if (smallTextStars) {
+          smallTextStars.innerHTML = generateStars(smallStars)
+        }
+        if (largeTextStars) {
+          largeTextStars.innerHTML = generateStars(largeStars)
+        }
 
-        // Announce changes to screen readers
-        contrastAnnouncement.textContent =
-          `Contrast ratio ${ratio.toFixed(1)} to 1. ${compliance.description}. ` +
-          `Small text: ${smallStars} out of 5 stars. Large text: ${largeStars} out of 5 stars.`
+        // Announce changes to screen readers (with fallback)
+        if (contrastAnnouncement) {
+          contrastAnnouncement.textContent =
+            `Contrast ratio ${ratio.toFixed(1)} to 1. ${compliance.description}. ` +
+            `Small text: ${smallStars} out of 5 stars. Large text: ${largeStars} out of 5 stars.`
+        }
       } catch (error) {
         console.error('ContrastCard: Error updating display:', error)
       }
@@ -231,15 +242,22 @@ import { Icon } from 'astro-icon/components'
     // Initialize display
     updateContrastCard()
 
+    // Clean up any existing listeners first
+    document.removeEventListener('colorManagerUpdate', updateContrastCard)
+    window.removeEventListener('storage', updateContrastCard)
+
     // Listen for color changes
     document.addEventListener('colorManagerUpdate', updateContrastCard)
 
-    // Also listen for direct storage changes (for cross-tab updates)
-    window.addEventListener('storage', (e) => {
-      if (e.key && e.key.startsWith('colorManager')) {
+    // Storage change handler for cross-tab updates
+    const storageHandler = (e) => {
+      if (e.key === 'color-contrast-checker') {
         updateContrastCard()
       }
-    })
+    }
+
+    // Also listen for direct storage changes (for cross-tab updates)
+    window.addEventListener('storage', storageHandler)
   }
 
   // Initialize when DOM is ready
@@ -251,7 +269,7 @@ import { Icon } from 'astro-icon/components'
 
   // Re-initialize on view transitions
   document.addEventListener('astro:page-load', () => {
-    setTimeout(initializeContrastCard, 100)
+    requestAnimationFrame(initializeContrastCard)
   })
 </script>
 

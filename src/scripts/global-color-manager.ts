@@ -15,6 +15,8 @@ const INPUT_VALUES_KEY = 'color-input-values'
 
 // Store input value in localStorage
 function storeInputValue(inputId: string, value: string) {
+  if (typeof window === 'undefined' || !window.localStorage) return
+
   try {
     const stored = JSON.parse(localStorage.getItem(INPUT_VALUES_KEY) || '{}')
     stored[inputId] = value
@@ -26,6 +28,8 @@ function storeInputValue(inputId: string, value: string) {
 
 // Get input value from localStorage
 function getStoredInputValue(inputId: string): string {
+  if (typeof window === 'undefined' || !window.localStorage) return ''
+
   try {
     const stored = JSON.parse(localStorage.getItem(INPUT_VALUES_KEY) || '{}')
     return stored[inputId] || ''
@@ -35,23 +39,33 @@ function getStoredInputValue(inputId: string): string {
   }
 }
 
+// Track initialization to prevent redundant calls
+let isInitializing = false
+
 // Initialize and expose ColorManager and functions globally
 window.ColorManager = ColorManager.getInstance()
 window.storeInputValue = storeInputValue
 window.getStoredInputValue = getStoredInputValue
 
-// Initialize on DOM ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
+// Smart initialization that prevents redundant calls
+function initializeColorManager() {
+  if (isInitializing) return
+  isInitializing = true
+
+  requestAnimationFrame(() => {
     window.ColorManager.init()
+    isInitializing = false
   })
-} else {
-  window.ColorManager.init()
 }
 
-// Handle view transitions
-document.addEventListener('astro:page-load', () => {
-  window.ColorManager.init()
-})
+// Initialize on DOM ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeColorManager)
+} else {
+  initializeColorManager()
+}
+
+// Handle view transitions (only re-init if needed)
+document.addEventListener('astro:page-load', initializeColorManager)
 
 export {} // Ensure this is treated as a module
