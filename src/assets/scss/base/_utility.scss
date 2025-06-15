@@ -110,6 +110,10 @@
   white-space: nowrap;
 }
 
+.hidden {
+  display: none !important;
+}
+
 $space-map: (
   3xs: var(--space-3xs),
   2xs: var(--space-2xs),

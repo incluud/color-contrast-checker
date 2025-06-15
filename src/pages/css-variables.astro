@@ -131,6 +131,9 @@ import { Tabs, TabsList, TabsTab, TabsPanel } from 'accessible-astro-components'
   </section>
 
   <script is:inline>
+    // Store handler reference for proper cleanup
+    let currentStorageHandler = null
+
     function initializeDynamicCodeBlocks() {
       if (!window.ColorManager) {
         requestAnimationFrame(initializeDynamicCodeBlocks)
@@ -225,13 +228,6 @@ import { Tabs, TabsList, TabsTab, TabsPanel } from 'accessible-astro-components'
       // Initialize with current colors
       updateCodeBlocks()
 
-      // Clean up any existing listeners first
-      document.removeEventListener('colorManagerUpdate', updateCodeBlocks)
-      window.removeEventListener('storage', updateCodeBlocks)
-
-      // Listen for color changes
-      document.addEventListener('colorManagerUpdate', updateCodeBlocks)
-
       // Storage change handler for cross-tab updates
       const storageHandler = (event) => {
         if (event.key === 'color-contrast-checker') {
@@ -239,8 +235,18 @@ import { Tabs, TabsList, TabsTab, TabsPanel } from 'accessible-astro-components'
         }
       }
 
-      // Also listen for storage changes (cross-tab updates)
+      // Clean up any existing listeners first
+      document.removeEventListener('colorManagerUpdate', updateCodeBlocks)
+      if (currentStorageHandler) {
+        window.removeEventListener('storage', currentStorageHandler)
+      }
+
+      // Listen for color changes
+      document.addEventListener('colorManagerUpdate', updateCodeBlocks)
       window.addEventListener('storage', storageHandler)
+
+      // Store reference for future cleanup
+      currentStorageHandler = storageHandler
     }
 
     // Initialize when DOM is ready

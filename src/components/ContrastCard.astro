@@ -18,7 +18,7 @@ import { Badge } from 'accessible-astro-components'
           <Icon name="lucide:loader-2" size="2.5rem" class="status-icon status-icon--loading animate-spin" />
           <Icon name="lucide:circle-x" size="2.5rem" class="status-icon status-icon--critical hidden" />
           <Icon name="lucide:triangle-alert" size="2.5rem" class="status-icon status-icon--needs-work hidden" />
-          <Icon name="lucide:circle-dot" size="2.5rem" class="status-icon status-icon--usable hidden" />
+          <Icon name="lucide:circle-dot" size="2.5rem" class="status-icon status-icon--partial hidden" />
           <Icon name="lucide:circle-check" size="2.5rem" class="status-icon status-icon--accessible hidden" />
           <Icon name="lucide:shield-check" size="2.5rem" class="status-icon status-icon--excellent hidden" />
         </span>
@@ -365,10 +365,6 @@ import { Badge } from 'accessible-astro-components'
       &.badge-aaa-large-fail {
         background-color: var(--fail-color-dark);
         color: var(--fail-color-light);
-      }
-
-      &.hidden {
-        display: none;
       }
     }
 

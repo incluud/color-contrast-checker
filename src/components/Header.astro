@@ -33,6 +33,7 @@ import { Modal } from 'accessible-astro-components'
 <Modal triggerId="modal-trigger" title="Share your color combination">
   <p>Copy the URL to share your color combination with others.</p>
   <input type="text" readonly value={`${Astro.url.origin}${Astro.url.pathname}${Astro.url.search}`} />
+  <!-- TODO: Add logic to copy the URL to the clipboard -->
   <button>Copy</button>
 </Modal>
 
