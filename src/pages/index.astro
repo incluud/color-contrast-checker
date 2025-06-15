@@ -57,10 +57,9 @@ import { Icon } from 'astro-icon/components'
             <div class="text-block flex flex-col gap-2">
               <h2 class="text-2xl">Block of text</h2>
               <p>
-                Astro is a modern web framework combining static site generation with dynamic components. It delivers
-                fast performance through partial hydration, sending minimal JavaScript to clients. With intuitive
-                syntax, content collections, and seamless integration with React, Vue, and Svelte, Astro simplifies
-                building content-focused websites while maintaining excellent developer experience.
+                Astro combines static generation with dynamic components, delivering fast performance through minimal
+                JavaScript. With intuitive syntax and seamless framework integration, it simplifies building
+                content-focused websites.
               </p>
             </div>
           </GridBlock>
@@ -125,10 +124,6 @@ import { Icon } from 'astro-icon/components'
         :global(.title) {
           padding-block: 0;
         }
-
-        :global(.title) {
-          padding-block: 0;
-        }
       }
 
       .badge {
@@ -144,6 +139,9 @@ import { Icon } from 'astro-icon/components'
       }
 
       .text-block {
+        border-radius: var(--radius-s);
+        background-color: var(--color-background-base);
+        padding: var(--space-s);
         color: var(--color-foreground-base);
       }
     </style>

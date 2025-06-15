@@ -2,6 +2,7 @@
 import Form from '@components/Form.astro'
 import Input from '@components/Input.astro'
 import AstroBadge from '@components/AstroBadge.astro'
+import { Icon } from 'astro-icon/components'
 
 /**
  * Controls Component
@@ -11,16 +12,18 @@ import AstroBadge from '@components/AstroBadge.astro'
 ---
 
 <div class="space-content p-6">
-  <h1>
-    Color Contrast Checker
-    <!-- <Icon name="lucide:contrast" /> -->
-  </h1>
-  <p>Check color contrast and generate CSS variables from your color choices.</p>
-  <p>Supports hex, named colors, rgb(), hsl(), and more. Use the color picker or type directly.</p>
+  <h1 class="leading-none">Color Contrast Checker</h1>
+  <p>
+    Check color contrast and generate CSS variables from your color choices. Supports hex, named colors, rgb(), hsl(),
+    and more. Use the color picker or type directly.
+  </p>
   <Form>
     <Input label="Foreground Color" id="foreground-color" color="var(--color-foreground-base)" />
     <Input label="Background Color" id="background-color" color="var(--color-background-base)" />
-    <!-- <button type="submit" class="button">Check contrast</button> -->
+    <button class="flex items-center gap-2" type="button">
+      <Icon name="lucide:arrow-left-right" />
+      Swap colors
+    </button>
   </Form>
   <AstroBadge />
 </div>

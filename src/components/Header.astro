@@ -1,6 +1,7 @@
 ---
 import { DarkMode, SkipLink } from 'accessible-astro-components'
 import { Icon } from 'astro-icon/components'
+import { Modal } from 'accessible-astro-components'
 
 /**
  * Header Component
@@ -12,7 +13,11 @@ import { Icon } from 'astro-icon/components'
 <header>
   <SkipLink />
   <div class="p-4">
-    <div class="flex items-center justify-end gap-4">
+    <div class="flex items-center justify-end gap-8">
+      <button id="modal-trigger" class="animate-rotate">
+        <Icon name="lucide:share" />
+        <span class="sr-only">Share your color combination</span>
+      </button>
       <a class="animate-rotate" href="https://github.com/markteekman/accessible-astro-starter">
         <Icon name="lucide:github" />
         <span class="sr-only">Go to the GitHub page</span>
@@ -25,11 +30,18 @@ import { Icon } from 'astro-icon/components'
   </div>
 </header>
 
+<Modal triggerId="modal-trigger" title="Share your color combination">
+  <p>Copy the URL to share your color combination with others.</p>
+  <input type="text" readonly value={`${Astro.url.origin}${Astro.url.pathname}${Astro.url.search}`} />
+  <button>Copy</button>
+</Modal>
+
 <style lang="scss" is:global>
   @use '../assets/scss/base/mixins' as *;
 
   header {
-    a {
+    a,
+    button {
       display: block;
       margin-inline: -7px;
       color: var(--color-text-subtle);

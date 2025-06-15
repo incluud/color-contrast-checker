@@ -1,5 +1,6 @@
 ---
 import { Icon } from 'astro-icon/components'
+import { Badge } from 'accessible-astro-components'
 
 /**
  * ContrastCard Component
@@ -13,23 +14,60 @@ import { Icon } from 'astro-icon/components'
   <div class="contrast-card__header">
     <h2 class="text-4xl">
       <span class="flex items-center gap-2" id="status-indicator">
-        <Icon name="lucide:loader-2" size="2.5rem" class="animate-spin" />
+        <span class="status-icons">
+          <Icon name="lucide:loader-2" size="2.5rem" class="status-icon status-icon--loading animate-spin" />
+          <Icon name="lucide:circle-x" size="2.5rem" class="status-icon status-icon--critical hidden" />
+          <Icon name="lucide:triangle-alert" size="2.5rem" class="status-icon status-icon--needs-work hidden" />
+          <Icon name="lucide:circle-dot" size="2.5rem" class="status-icon status-icon--usable hidden" />
+          <Icon name="lucide:circle-check" size="2.5rem" class="status-icon status-icon--accessible hidden" />
+          <Icon name="lucide:shield-check" size="2.5rem" class="status-icon status-icon--excellent hidden" />
+        </span>
         <span id="status-text">Loading...</span>
       </span>
       <span class="text-6xl" id="contrast-ratio">-:-</span>
     </h2>
   </div>
   <div class="contrast-card__body">
-    <p class="flex items-center gap-2 text-2xl">
+    <p class="flex items-center justify-between gap-4 text-2xl">
       <span>Small text</span>
-      <span class="flex gap-1" id="small-text-stars" aria-label="Small text WCAG compliance rating">
-        <!-- Stars will be generated dynamically -->
+      <span class="flex gap-2" id="small-text-badges" aria-label="Small text WCAG compliance rating">
+        <Badge class="badge-aa-small-pass hidden">
+          <Icon name="lucide:check" />
+          Level AA
+        </Badge>
+        <Badge class="badge-aa-small-fail hidden">
+          <Icon name="lucide:x" />
+          Level AA
+        </Badge>
+        <Badge class="badge-aaa-small-pass hidden">
+          <Icon name="lucide:check" />
+          Level AAA
+        </Badge>
+        <Badge class="badge-aaa-small-fail hidden">
+          <Icon name="lucide:x" />
+          Level AAA
+        </Badge>
       </span>
     </p>
-    <p class="flex items-center gap-2 text-2xl">
+    <p class="flex items-center justify-between gap-4 text-2xl">
       <span>Large text</span>
-      <span class="flex gap-1" id="large-text-stars" aria-label="Large text WCAG compliance rating">
-        <!-- Stars will be generated dynamically -->
+      <span class="flex gap-2" id="large-text-badges" aria-label="Large text WCAG compliance rating">
+        <Badge class="badge-aa-large-pass hidden">
+          <Icon name="lucide:check" />
+          Level AA
+        </Badge>
+        <Badge class="badge-aa-large-fail hidden">
+          <Icon name="lucide:x" />
+          Level AA
+        </Badge>
+        <Badge class="badge-aaa-large-pass hidden">
+          <Icon name="lucide:check" />
+          Level AAA
+        </Badge>
+        <Badge class="badge-aaa-large-fail hidden">
+          <Icon name="lucide:x" />
+          Level AAA
+        </Badge>
       </span>
     </p>
 
@@ -56,57 +94,39 @@ import { Icon } from 'astro-icon/components'
     const statusIndicator = document.getElementById('status-indicator')
     const statusText = document.getElementById('status-text')
     const contrastRatio = document.getElementById('contrast-ratio')
-    const smallTextStars = document.getElementById('small-text-stars')
-    const largeTextStars = document.getElementById('large-text-stars')
+    const smallTextBadges = document.getElementById('small-text-badges')
+    const largeTextBadges = document.getElementById('large-text-badges')
     const contrastAnnouncement = document.getElementById('contrast-announcement')
 
     // Continue even if some elements are missing - they'll just not update
 
     /**
-     * Generate star rating HTML based on WCAG compliance level
-     * @param {number} level - WCAG compliance level (0-5)
-     * @returns {string} HTML string for stars
-     */
-    function generateStars(level) {
-      let starsHtml = ''
-      for (let i = 0; i < 5; i++) {
-        const isActive = i < level
-        starsHtml += `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          ${
-            isActive
-              ? '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>'
-              : '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="none" stroke="currentColor" stroke-width="2"/>'
-          }
-        </svg>`
-      }
-      return starsHtml
-    }
-
-    /**
-     * Calculate WCAG star rating based on contrast ratio
+     * Update WCAG compliance badges based on contrast ratio
      * @param {number} ratio - Contrast ratio
+     * @param {Element} badgeContainer - Container element for badges
      * @param {boolean} isLargeText - Whether this is for large text
-     * @returns {number} Star rating (0-5)
      */
-    function calculateStarRating(ratio, isLargeText = false) {
-      if (isLargeText) {
-        // Large text thresholds (18pt+ or 14pt+ bold) - easier to read, lower requirements
-        if (ratio >= 7) return 5 // AAA+ (excellent)
-        if (ratio >= 4.5) return 5 // AAA (excellent) - same as above since it exceeds AAA
-        if (ratio >= 3) return 4 // AA (good) - meets WCAG AA for large text
-        if (ratio >= 2.5) return 3 // Nearly AA (acceptable)
-        if (ratio >= 2) return 2 // Poor but readable for large text
-        if (ratio >= 1.5) return 1 // Very poor
-        return 0 // Fail
-      } else {
-        // Small text thresholds - harder to read, higher requirements
-        if (ratio >= 7) return 5 // AAA (excellent)
-        if (ratio >= 4.5) return 4 // AA (good)
-        if (ratio >= 3) return 3 // Close to AA (acceptable)
-        if (ratio >= 2) return 2 // Poor
-        if (ratio >= 1.5) return 1 // Very poor
-        return 0 // Fail
-      }
+    function updateBadges(ratio, badgeContainer, isLargeText = false) {
+      if (!badgeContainer) return
+
+      const aaThreshold = isLargeText ? 3 : 4.5
+      const aaaThreshold = isLargeText ? 4.5 : 7
+
+      const aaPass = ratio >= aaThreshold
+      const aaaPass = ratio >= aaaThreshold
+
+      const textSize = isLargeText ? 'large' : 'small'
+
+      // Hide all badges first
+      const allBadges = badgeContainer.querySelectorAll('.badge')
+      allBadges.forEach((badge) => badge.classList.add('hidden'))
+
+      // Show appropriate badges
+      const aaBadge = badgeContainer.querySelector(`.badge-aa-${textSize}-${aaPass ? 'pass' : 'fail'}`)
+      const aaaBadge = badgeContainer.querySelector(`.badge-aaa-${textSize}-${aaaPass ? 'pass' : 'fail'}`)
+
+      if (aaBadge) aaBadge.classList.remove('hidden')
+      if (aaaBadge) aaaBadge.classList.remove('hidden')
     }
 
     /**
@@ -115,38 +135,41 @@ import { Icon } from 'astro-icon/components'
      * @returns {object} Status information
      */
     function getComplianceStatus(ratio) {
-      const smallTextAA = ratio >= 4.5
-      const smallTextAAA = ratio >= 7
-      const largeTextAA = ratio >= 3
-      const largeTextAAA = ratio >= 4.5
-
-      if (smallTextAAA && largeTextAAA) {
+      // More granular assessment based on contrast ratio
+      if (ratio >= 7) {
         return {
-          level: 'AAA',
-          status: 'Pass',
-          icon: 'lucide:shield-check',
-          description: 'Excellent accessibility - exceeds all WCAG requirements',
+          level: 5,
+          status: 'Excellent',
+          iconClass: 'status-icon--excellent',
+          description: 'Outstanding accessibility - exceeds all WCAG AAA requirements',
         }
-      } else if (smallTextAA && largeTextAA) {
+      } else if (ratio >= 4.5) {
         return {
-          level: 'AA',
-          status: 'Pass',
-          icon: 'lucide:check-circle',
-          description: 'Good accessibility - meets WCAG AA requirements',
+          level: 4,
+          status: 'Accessible',
+          iconClass: 'status-icon--accessible',
+          description: 'Accessible - meets WCAG AA requirements for all text',
         }
-      } else if (largeTextAA) {
+      } else if (ratio >= 3) {
         return {
-          level: 'Partial',
+          level: 3,
           status: 'Partial',
-          icon: 'lucide:alert-triangle',
-          description: 'Limited accessibility - only suitable for large text',
+          iconClass: 'status-icon--usable',
+          description: 'Partial - meets WCAG AA for large text but not small text',
+        }
+      } else if (ratio >= 1.5) {
+        return {
+          level: 2,
+          status: 'Needs Work',
+          iconClass: 'status-icon--needs-work',
+          description: 'Needs work - getting better but not meeting WCAG standards',
         }
       } else {
         return {
-          level: 'Fail',
-          status: 'Fail',
-          icon: 'lucide:circle-x',
-          description: 'Poor accessibility - does not meet WCAG requirements',
+          level: 1,
+          status: 'Critical',
+          iconClass: 'status-icon--critical',
+          description: 'Critical - serious accessibility barriers for all users',
         }
       }
     }
@@ -183,56 +206,43 @@ import { Icon } from 'astro-icon/components'
           statusText.textContent = compliance.status
         }
 
-        // Create appropriate icon based on status
-        let iconSvg = ''
-        switch (compliance.status) {
-          case 'Pass':
-            if (compliance.level === 'AAA') {
-              // Shield check icon for AAA
-              iconSvg =
-                '<svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1l3.5 7 7 1-5 5 1 7-6.5-3.5L5.5 21l1-7-5-5 7-1L12 1z"/></svg>'
-            } else {
-              // Check circle icon for AA
-              iconSvg =
-                '<svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg>'
-            }
-            break
-          case 'Partial':
-            // Warning triangle icon
-            iconSvg =
-              '<svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13" stroke="white" stroke-width="2"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="white" stroke-width="2"/></svg>'
-            break
-          default: // Fail
-            // X circle icon
-            iconSvg =
-              '<svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15" stroke="white" stroke-width="2"/><line x1="9" y1="9" x2="15" y2="15" stroke="white" stroke-width="2"/></svg>'
+        // Show appropriate icon and update status text
+        const allIcons = statusIndicator?.querySelectorAll('.status-icon')
+        if (allIcons) {
+          // Hide all icons first
+          allIcons.forEach((icon) => icon.classList.add('hidden'))
+          // Show the appropriate icon
+          const activeIcon = statusIndicator.querySelector(`.${compliance.iconClass}`)
+          if (activeIcon) {
+            activeIcon.classList.remove('hidden')
+          }
         }
 
-        if (statusIndicator) {
-          statusIndicator.innerHTML = `${iconSvg}<span>${compliance.status}</span>`
+        // Update status text
+        if (statusText) {
+          statusText.textContent = compliance.status
         }
 
         // Update status styling (with fallback)
         if (contrastCard) {
-          contrastCard.className = `contrast-card contrast-card--${compliance.status.toLowerCase()}`
+          contrastCard.className = `contrast-card contrast-card--${compliance.status.toLowerCase().replace(/\s+/g, '-')}`
         }
 
-        // Update star ratings (with fallbacks)
-        const smallStars = calculateStarRating(ratio, false)
-        const largeStars = calculateStarRating(ratio, true)
+        // Update WCAG badges (with fallbacks)
+        updateBadges(ratio, smallTextBadges, false)
+        updateBadges(ratio, largeTextBadges, true)
 
-        if (smallTextStars) {
-          smallTextStars.innerHTML = generateStars(smallStars)
-        }
-        if (largeTextStars) {
-          largeTextStars.innerHTML = generateStars(largeStars)
-        }
+        // Get badge info for screen reader announcement
+        const smallTextAA = ratio >= 4.5 ? 'passes' : 'fails'
+        const smallTextAAA = ratio >= 7 ? 'passes' : 'fails'
+        const largeTextAA = ratio >= 3 ? 'passes' : 'fails'
+        const largeTextAAA = ratio >= 4.5 ? 'passes' : 'fails'
 
         // Announce changes to screen readers (with fallback)
         if (contrastAnnouncement) {
           contrastAnnouncement.textContent =
             `Contrast ratio ${ratio.toFixed(1)} to 1. ${compliance.description}. ` +
-            `Small text: ${smallStars} out of 5 stars. Large text: ${largeStars} out of 5 stars.`
+            `Small text: AA ${smallTextAA}, AAA ${smallTextAAA}. Large text: AA ${largeTextAA}, AAA ${largeTextAAA}.`
         }
       } catch (error) {
         console.error('ContrastCard: Error updating display:', error)
@@ -250,8 +260,8 @@ import { Icon } from 'astro-icon/components'
     document.addEventListener('colorManagerUpdate', updateContrastCard)
 
     // Storage change handler for cross-tab updates
-    const storageHandler = (e) => {
-      if (e.key === 'color-contrast-checker') {
+    const storageHandler = (event) => {
+      if (event.key === 'color-contrast-checker') {
         updateContrastCard()
       }
     }
@@ -275,31 +285,55 @@ import { Icon } from 'astro-icon/components'
 
 <style lang="scss">
   .contrast-card {
+    --pass-color-light: #d2fbd0;
+    --pass-color-dark: #0a5f07;
+    --partial-color-light: #fbf5d0;
+    --partial-color-dark: #5f5106;
+    --fail-color-light: #fbd0da;
+    --fail-color-dark: #5f081c;
+    --pulse-color: var(--pass-color-dark);
+
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     transition: all 0.3s ease;
     border: 2px solid transparent;
     border-radius: var(--radius-s);
-    background-color: var(--color-background-base);
+    background-color: var(--background-color);
     padding: var(--space-m);
     inline-size: 100%;
     block-size: 100%;
-    color: var(--color-foreground-base);
+    color: var(--foreground-color);
 
-    &--pass {
-      box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.1);
-      border-color: #10b981; // emerald-500
+    &--critical {
+      // border-color: var(--fail-color-dark);
+      background-color: var(--fail-color-light);
+      color: var(--fail-color-dark);
+    }
+
+    &--needs-work {
+      // border-color: var(--partial-color-dark);
+      background-color: var(--partial-color-light);
+      color: var(--partial-color-dark);
     }
 
     &--partial {
-      box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.1);
-      border-color: #f59e0b; // amber-500
+      // border-color: var(--partial-color-dark);
+      background-color: var(--partial-color-light);
+      color: var(--partial-color-dark);
     }
 
-    &--fail {
-      box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.1);
-      border-color: #ef4444; // red-500
+    &--accessible {
+      // border-color: var(--pass-color-dark);
+      background-color: var(--pass-color-light);
+      color: var(--pass-color-dark);
+    }
+
+    &--excellent {
+      animation: pulse 3s ease-in-out infinite;
+      // border-color: var(--pass-color-dark);
+      background-color: var(--pass-color-light);
+      color: var(--pass-color-dark);
     }
 
     &__header h2 {
@@ -314,13 +348,27 @@ import { Icon } from 'astro-icon/components'
       gap: var(--space-2xs);
     }
 
-    // Star styling
-    #small-text-stars,
-    #large-text-stars {
-      svg {
-        transition: all 0.2s ease;
-        width: 1.5rem;
-        height: 1.5rem;
+    .badge {
+      border-color: transparent;
+
+      &.badge-aa-small-pass,
+      &.badge-aa-large-pass,
+      &.badge-aaa-small-pass,
+      &.badge-aaa-large-pass {
+        background-color: var(--pass-color-dark);
+        color: var(--pass-color-light);
+      }
+
+      &.badge-aa-small-fail,
+      &.badge-aa-large-fail,
+      &.badge-aaa-small-fail,
+      &.badge-aaa-large-fail {
+        background-color: var(--fail-color-dark);
+        color: var(--fail-color-light);
+      }
+
+      &.hidden {
+        display: none;
       }
     }
 
@@ -338,17 +386,70 @@ import { Icon } from 'astro-icon/components'
       }
     }
 
-    // Screen reader only content
-    .sr-only {
-      position: absolute;
-      margin: -1px;
-      padding: 0;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      border: 0;
-      white-space: nowrap;
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(from var(--pulse-color) r g b / 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 10px rgba(from var(--pulse-color) r g b / 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(from var(--pulse-color) r g b / 0);
+      }
+    }
+  }
+
+  :global(.darkmode) {
+    .contrast-card {
+      --pulse-color: var(--pass-color-light);
+
+      &--critical {
+        // border-color: var(--fail-color-light);
+        background-color: var(--fail-color-dark);
+        color: var(--fail-color-light);
+      }
+
+      &--needs-work {
+        // border-color: var(--partial-color-light);
+        background-color: var(--partial-color-dark);
+        color: var(--partial-color-light);
+      }
+
+      &--partial {
+        // border-color: var(--partial-color-light);
+        background-color: var(--partial-color-dark);
+        color: var(--partial-color-light);
+      }
+
+      &--accessible {
+        // border-color: var(--pass-color-light);
+        background-color: var(--pass-color-dark);
+        color: var(--pass-color-light);
+      }
+
+      &--excellent {
+        // border-color: var(--pass-color-light);
+        background-color: var(--pass-color-dark);
+        color: var(--pass-color-light);
+      }
+
+      .badge {
+        &.badge-aa-small-pass,
+        &.badge-aa-large-pass,
+        &.badge-aaa-small-pass,
+        &.badge-aaa-large-pass {
+          background-color: var(--pass-color-light);
+          color: var(--pass-color-dark);
+        }
+
+        &.badge-aa-small-fail,
+        &.badge-aa-large-fail,
+        &.badge-aaa-small-fail,
+        &.badge-aaa-large-fail {
+          background-color: var(--fail-color-light);
+          color: var(--fail-color-dark);
+        }
+      }
     }
   }
 </style>

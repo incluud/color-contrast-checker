@@ -233,8 +233,8 @@ import { Tabs, TabsList, TabsTab, TabsPanel } from 'accessible-astro-components'
       document.addEventListener('colorManagerUpdate', updateCodeBlocks)
 
       // Storage change handler for cross-tab updates
-      const storageHandler = (e) => {
-        if (e.key === 'color-contrast-checker') {
+      const storageHandler = (event) => {
+        if (event.key === 'color-contrast-checker') {
           updateCodeBlocks()
         }
       }

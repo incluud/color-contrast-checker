@@ -270,42 +270,9 @@ export class ColorManager {
 
     const root = document.documentElement
 
-    // Update base colors
+    // Update base colors - CSS will automatically generate shades via oklch(from var(...))
     root.style.setProperty('--color-foreground-base', this.foregroundColor)
     root.style.setProperty('--color-background-base', this.backgroundColor)
-
-    // Generate and update color shades using oklch
-    this.updateColorShades('--color-foreground', this.foregroundColor)
-    this.updateColorShades('--color-background', this.backgroundColor)
-  }
-
-  /**
-   * Generate color shades using oklch and update CSS variables
-   */
-  private updateColorShades(baseVar: string, color: string): void {
-    if (typeof document === 'undefined') return
-
-    const root = document.documentElement
-    const parsed = parse(color)
-
-    if (!parsed) return
-
-    // Convert to oklch for better shade generation
-    const oklchColor = oklch(parsed)
-    if (!oklchColor) return
-
-    // Generate shades by adjusting lightness
-    const shades = [90, 80, 70, 60, 50]
-
-    shades.forEach((lightness, index) => {
-      const shade = {
-        ...oklchColor,
-        l: lightness / 100,
-      }
-
-      const hex = formatHex(shade)
-      root.style.setProperty(`${baseVar}-${(index + 1) * 10}`, hex)
-    })
   }
 
   /**
