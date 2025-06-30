@@ -15,8 +15,8 @@ import { Modal, Notification } from 'accessible-astro-components'
 <div class="space-content p-6">
   <h1 class="leading-none">Color Contrast Checker</h1>
   <p>
-    Check color contrast and generate CSS variables from your color choices. Supports hex, named colors, rgb(), hsl(),
-    and more. Use the color picker or type directly.
+    Check color contrast and generate design tokens from your color choices. Supports hex, named colors, rgb(), hsl(),
+    and other common color formats. Use the color picker or type directly.
   </p>
   <Form>
     <Input label="Foreground Color" id="foreground-color" />
@@ -38,7 +38,7 @@ import { Modal, Notification } from 'accessible-astro-components'
 
   <Modal triggerId="modal-trigger" title="Share your color combination">
     <p>Copy the URL to share your color combination with others.</p>
-    <input id="share-url" type="text" readonly value="" />
+    <input id="share-url" type="text" readonly value="" aria-label="Shareable URL for current color combination" />
     <button id="copy-url" class="button">Copy URL</button>
     <Notification id="copy-feedback" type="success" class="hidden" aria-live="polite">
       URL copied to clipboard! 🎉
@@ -48,11 +48,13 @@ import { Modal, Notification } from 'accessible-astro-components'
 
 <script is:inline>
   // Wait for global functions to be available
-  function waitForGlobals(callback) {
+  function waitForGlobals(callback, maxRetries = 100) {
     if (window.ColorManager && window.storeInputValue && window.getStoredInputValue) {
       callback()
+    } else if (maxRetries > 0) {
+      setTimeout(() => waitForGlobals(callback, maxRetries - 1), 50)
     } else {
-      setTimeout(() => waitForGlobals(callback), 50)
+      console.error('Global dependencies not available after timeout')
     }
   }
 

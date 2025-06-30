@@ -69,458 +69,458 @@ import { Badge } from 'accessible-astro-components'
           Level AAA
         </Badge>
       </span>
-      <p class="flex items-center justify-between gap-4 text-2xl">
-        <span>UI components</span>
-        <span class="flex gap-2" id="ui-components-badges" aria-label="UI components WCAG compliance rating">
-          <Badge class="badge-aa-large-pass hidden">
-            <Icon name="lucide:check" />
-            Level AA
-          </Badge>
-          <Badge class="badge-aa-large-fail hidden">
-            <Icon name="lucide:x" />
-            Level AA
-          </Badge>
-          <Badge class="badge-aaa-large-pass hidden">
-            <Icon name="lucide:check" />
-            Level AAA
-          </Badge>
-          <Badge class="badge-aaa-large-fail hidden">
-            <Icon name="lucide:x" />
-            Level AAA
-          </Badge>
-        </span>
-      </p>
-
-      <!-- Hidden elements for screen readers -->
-      <div class="sr-only" aria-live="polite" id="contrast-announcement"></div>
     </p>
+    <p class="flex items-center justify-between gap-4 text-2xl">
+      <span>UI components</span>
+      <span class="flex gap-2" id="ui-components-badges" aria-label="UI components WCAG compliance rating">
+        <Badge class="badge-aa-large-pass hidden">
+          <Icon name="lucide:check" />
+          Level AA
+        </Badge>
+        <Badge class="badge-aa-large-fail hidden">
+          <Icon name="lucide:x" />
+          Level AA
+        </Badge>
+        <Badge class="badge-aaa-large-pass hidden">
+          <Icon name="lucide:check" />
+          Level AAA
+        </Badge>
+        <Badge class="badge-aaa-large-fail hidden">
+          <Icon name="lucide:x" />
+          Level AAA
+        </Badge>
+      </span>
+    </p>
+
+    <!-- Hidden elements for screen readers -->
+    <div class="sr-only" aria-live="polite" id="contrast-announcement"></div>
   </div>
+</div>
 
-  <script is:inline>
-    function initializeContrastCard() {
-      if (!window.ColorManager) {
-        requestAnimationFrame(initializeContrastCard)
-        return
-      }
-
-      // Only initialize if we're on a page that has the contrast card
-      const contrastCard = document.getElementById('contrast-card')
-      if (!contrastCard) {
-        // Silently return - we're probably on a different page
-        return
-      }
-
-      // Get elements - use optional chaining and fallbacks for missing elements
-      const statusIndicator = document.getElementById('status-indicator')
-      const statusText = document.getElementById('status-text')
-      const contrastRatio = document.getElementById('contrast-ratio')
-      const smallTextBadges = document.getElementById('small-text-badges')
-      const largeTextBadges = document.getElementById('large-text-badges')
-      const uiComponentsBadges = document.getElementById('ui-components-badges')
-      const contrastAnnouncement = document.getElementById('contrast-announcement')
-
-      // Continue even if some elements are missing - they'll just not update
-
-      /**
-       * Update WCAG compliance badges based on contrast ratio
-       * @param {number} ratio - Contrast ratio
-       * @param {Element} badgeContainer - Container element for badges
-       * @param {'small' | 'large' | 'ui'} type - Type of content being tested
-       */
-      function updateBadges(ratio, badgeContainer, type = 'small') {
-        if (!badgeContainer) return
-
-        let aaThreshold, aaaThreshold, textSize
-
-        switch (type) {
-          case 'large':
-            aaThreshold = 3
-            aaaThreshold = 4.5
-            textSize = 'large'
-            break
-          case 'ui':
-            aaThreshold = 3
-            aaaThreshold = 3 // UI components: both AA and AAA pass at 3:1 (no separate AAA requirement)
-            textSize = 'large' // UI components use the same badge classes as large text
-            break
-          case 'small':
-          default:
-            aaThreshold = 4.5
-            aaaThreshold = 7
-            textSize = 'small'
-            break
-        }
-
-        const aaPass = ratio >= aaThreshold
-        const aaaPass = ratio >= aaaThreshold
-
-        // Hide all badges first
-        const allBadges = badgeContainer.querySelectorAll('.badge')
-        allBadges.forEach((badge) => badge.classList.add('hidden'))
-
-        // Show appropriate badges
-        const aaBadge = badgeContainer.querySelector(`.badge-aa-${textSize}-${aaPass ? 'pass' : 'fail'}`)
-        const aaaBadge = badgeContainer.querySelector(`.badge-aaa-${textSize}-${aaaPass ? 'pass' : 'fail'}`)
-
-        if (aaBadge) aaBadge.classList.remove('hidden')
-        if (aaaBadge) aaaBadge.classList.remove('hidden')
-      }
-
-      /**
-       * Get WCAG compliance status
-       * @param {number} ratio - Contrast ratio
-       * @returns {object} Status information
-       */
-      function getComplianceStatus(ratio) {
-        // More granular assessment based on contrast ratio
-        if (ratio >= 7) {
-          return {
-            level: 5,
-            status: 'Excellent',
-            iconClass: 'status-icon--excellent',
-            description: 'Outstanding accessibility - exceeds all WCAG AAA requirements',
-          }
-        } else if (ratio >= 4.5) {
-          return {
-            level: 4,
-            status: 'Accessible',
-            iconClass: 'status-icon--accessible',
-            description: 'Accessible - meets WCAG AA requirements for all text',
-          }
-        } else if (ratio >= 3) {
-          return {
-            level: 3,
-            status: 'Partial',
-            iconClass: 'status-icon--partial',
-            description: 'Partial - meets WCAG AA for large text but not small text',
-          }
-        } else if (ratio >= 1.5) {
-          return {
-            level: 2,
-            status: 'Needs Work',
-            iconClass: 'status-icon--needs-work',
-            description: 'Needs work - getting better but not meeting WCAG standards',
-          }
-        } else {
-          return {
-            level: 1,
-            status: 'Critical',
-            iconClass: 'status-icon--critical',
-            description: 'Critical - serious accessibility barriers for all users',
-          }
-        }
-      }
-
-      /**
-       * Update the contrast card display
-       */
-      function updateContrastCard() {
-        try {
-          const foregroundColor = window.ColorManager.getForegroundColor()
-          const backgroundColor = window.ColorManager.getBackgroundColor()
-
-          if (!foregroundColor || !backgroundColor) {
-            return
-          }
-
-          // Calculate contrast ratio
-          const ratio = window.ColorManager.getContrastRatio()
-
-          if (ratio === null) {
-            return
-          }
-
-          // Update contrast ratio display (with fallback)
-          if (contrastRatio) {
-            contrastRatio.textContent = `${ratio.toFixed(1)}:1`
-          }
-
-          // Get compliance status
-          const compliance = getComplianceStatus(ratio)
-
-          // Update status indicator (with fallback)
-          if (statusText) {
-            statusText.textContent = compliance.status
-          }
-
-          // Show appropriate icon and update status text
-          const allIcons = statusIndicator?.querySelectorAll('.status-icon')
-          if (allIcons) {
-            // Hide all icons first
-            allIcons.forEach((icon) => icon.classList.add('hidden'))
-            // Show the appropriate icon
-            const activeIcon = statusIndicator.querySelector(`.${compliance.iconClass}`)
-            if (activeIcon) {
-              activeIcon.classList.remove('hidden')
-            }
-          }
-
-          // Update status text
-          if (statusText) {
-            statusText.textContent = compliance.status
-          }
-
-          // Update status styling (with fallback)
-          if (contrastCard) {
-            contrastCard.className = `contrast-card contrast-card--${compliance.status.toLowerCase().replace(/\s+/g, '-')}`
-          }
-
-          // Update WCAG badges (with fallbacks)
-          updateBadges(ratio, smallTextBadges, 'small')
-          updateBadges(ratio, largeTextBadges, 'large')
-          updateBadges(ratio, uiComponentsBadges, 'ui')
-
-          // Get badge info for screen reader announcement
-          const smallTextAA = ratio >= 4.5 ? 'passes' : 'fails'
-          const smallTextAAA = ratio >= 7 ? 'passes' : 'fails'
-          const largeTextAA = ratio >= 3 ? 'passes' : 'fails'
-          const largeTextAAA = ratio >= 4.5 ? 'passes' : 'fails'
-          const uiComponentsAA = ratio >= 3 ? 'passes' : 'fails'
-          const uiComponentsAAA = ratio >= 3 ? 'passes' : 'fails' // Both AA and AAA pass at 3:1
-
-          // Announce changes to screen readers (with fallback)
-          if (contrastAnnouncement) {
-            contrastAnnouncement.textContent =
-              `Contrast ratio ${ratio.toFixed(1)} to 1. ${compliance.description}. ` +
-              `Small text: AA ${smallTextAA}, AAA ${smallTextAAA}. Large text: AA ${largeTextAA}, AAA ${largeTextAAA}. ` +
-              `UI components: AA ${uiComponentsAA}, AAA ${uiComponentsAAA}.`
-          }
-        } catch (error) {
-          console.error('ContrastCard: Error updating display:', error)
-        }
-      }
-
-      // Initialize display
-      updateContrastCard()
-
-      // Clean up any existing listeners first
-      window.removeEventListener('colorManagerUpdate', updateContrastCard)
-      window.removeEventListener('storage', updateContrastCard)
-
-      // Listen for color changes (dispatched on window by ColorManager)
-      window.addEventListener('colorManagerUpdate', updateContrastCard)
-
-      // Storage change handler for cross-tab updates
-      const storageHandler = (event) => {
-        if (event.key === 'color-contrast-checker') {
-          updateContrastCard()
-        }
-      }
-
-      // Also listen for direct storage changes (for cross-tab updates)
-      window.addEventListener('storage', storageHandler)
-    }
-
-    // Initialize when DOM is ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initializeContrastCard)
-    } else {
-      initializeContrastCard()
-    }
-
-    // Re-initialize on view transitions
-    document.addEventListener('astro:page-load', () => {
+<script is:inline>
+  function initializeContrastCard() {
+    if (!window.ColorManager) {
       requestAnimationFrame(initializeContrastCard)
-    })
-  </script>
+      return
+    }
 
-  <style lang="scss">
-    .contrast-card {
-      --pass-color-light: #d2fbd0;
-      --pass-color-dark: #0a5f07;
-      --partial-color-light: #fbf5d0;
-      --partial-color-dark: #5f5106;
-      --fail-color-light: #fbd0da;
-      --fail-color-dark: #5f081c;
-      --pulse-color: var(--pass-color-dark);
+    // Only initialize if we're on a page that has the contrast card
+    const contrastCard = document.getElementById('contrast-card')
+    if (!contrastCard) {
+      // Silently return - we're probably on a different page
+      return
+    }
 
+    // Get elements - use optional chaining and fallbacks for missing elements
+    const statusIndicator = document.getElementById('status-indicator')
+    const statusText = document.getElementById('status-text')
+    const contrastRatio = document.getElementById('contrast-ratio')
+    const smallTextBadges = document.getElementById('small-text-badges')
+    const largeTextBadges = document.getElementById('large-text-badges')
+    const uiComponentsBadges = document.getElementById('ui-components-badges')
+    const contrastAnnouncement = document.getElementById('contrast-announcement')
+
+    // Continue even if some elements are missing - they'll just not update
+
+    /**
+     * Update WCAG compliance badges based on contrast ratio
+     * @param {number} ratio - Contrast ratio
+     * @param {Element} badgeContainer - Container element for badges
+     * @param {'small' | 'large' | 'ui'} type - Type of content being tested
+     */
+    function updateBadges(ratio, badgeContainer, type = 'small') {
+      if (!badgeContainer) return
+
+      let aaThreshold, aaaThreshold, textSize
+
+      switch (type) {
+        case 'large':
+          aaThreshold = 3
+          aaaThreshold = 4.5
+          textSize = 'large'
+          break
+        case 'ui':
+          aaThreshold = 3
+          aaaThreshold = 3 // UI components: both AA and AAA pass at 3:1 (no separate AAA requirement)
+          textSize = 'large' // UI components use the same badge classes as large text
+          break
+        case 'small':
+        default:
+          aaThreshold = 4.5
+          aaaThreshold = 7
+          textSize = 'small'
+          break
+      }
+
+      const aaPass = ratio >= aaThreshold
+      const aaaPass = ratio >= aaaThreshold
+
+      // Hide all badges first
+      const allBadges = badgeContainer.querySelectorAll('.badge')
+      allBadges.forEach((badge) => badge.classList.add('hidden'))
+
+      // Show appropriate badges
+      const aaBadge = badgeContainer.querySelector(`.badge-aa-${textSize}-${aaPass ? 'pass' : 'fail'}`)
+      const aaaBadge = badgeContainer.querySelector(`.badge-aaa-${textSize}-${aaaPass ? 'pass' : 'fail'}`)
+
+      if (aaBadge) aaBadge.classList.remove('hidden')
+      if (aaaBadge) aaaBadge.classList.remove('hidden')
+    }
+
+    /**
+     * Get WCAG compliance status
+     * @param {number} ratio - Contrast ratio
+     * @returns {object} Status information
+     */
+    function getComplianceStatus(ratio) {
+      // More granular assessment based on contrast ratio
+      if (ratio >= 7) {
+        return {
+          level: 5,
+          status: 'Excellent',
+          iconClass: 'status-icon--excellent',
+          description: 'Outstanding accessibility - exceeds all WCAG AAA requirements',
+        }
+      } else if (ratio >= 4.5) {
+        return {
+          level: 4,
+          status: 'Accessible',
+          iconClass: 'status-icon--accessible',
+          description: 'Accessible - meets WCAG AA requirements for all text',
+        }
+      } else if (ratio >= 3) {
+        return {
+          level: 3,
+          status: 'Partial',
+          iconClass: 'status-icon--partial',
+          description: 'Partial - meets WCAG AA for large text but not small text',
+        }
+      } else if (ratio >= 1.5) {
+        return {
+          level: 2,
+          status: 'Needs Work',
+          iconClass: 'status-icon--needs-work',
+          description: 'Needs work - getting better but not meeting WCAG standards',
+        }
+      } else {
+        return {
+          level: 1,
+          status: 'Critical',
+          iconClass: 'status-icon--critical',
+          description: 'Critical - serious accessibility barriers for all users',
+        }
+      }
+    }
+
+    /**
+     * Update the contrast card display
+     */
+    function updateContrastCard() {
+      try {
+        const foregroundColor = window.ColorManager.getForegroundColor()
+        const backgroundColor = window.ColorManager.getBackgroundColor()
+
+        if (!foregroundColor || !backgroundColor) {
+          return
+        }
+
+        // Calculate contrast ratio
+        const ratio = window.ColorManager.getContrastRatio()
+
+        if (ratio === null) {
+          return
+        }
+
+        // Update contrast ratio display (with fallback)
+        if (contrastRatio) {
+          contrastRatio.textContent = `${ratio.toFixed(1)}:1`
+        }
+
+        // Get compliance status
+        const compliance = getComplianceStatus(ratio)
+
+        // Update status indicator (with fallback)
+        if (statusText) {
+          statusText.textContent = compliance.status
+        }
+
+        // Show appropriate icon and update status text
+        const allIcons = statusIndicator?.querySelectorAll('.status-icon')
+        if (allIcons) {
+          // Hide all icons first
+          allIcons.forEach((icon) => icon.classList.add('hidden'))
+          // Show the appropriate icon
+          const activeIcon = statusIndicator.querySelector(`.${compliance.iconClass}`)
+          if (activeIcon) {
+            activeIcon.classList.remove('hidden')
+          }
+        }
+
+        // Update status text
+        if (statusText) {
+          statusText.textContent = compliance.status
+        }
+
+        // Update status styling (with fallback)
+        if (contrastCard) {
+          contrastCard.className = `contrast-card contrast-card--${compliance.status.toLowerCase().replace(/\s+/g, '-')}`
+        }
+
+        // Update WCAG badges (with fallbacks)
+        updateBadges(ratio, smallTextBadges, 'small')
+        updateBadges(ratio, largeTextBadges, 'large')
+        updateBadges(ratio, uiComponentsBadges, 'ui')
+
+        // Get badge info for screen reader announcement
+        const smallTextAA = ratio >= 4.5 ? 'passes' : 'fails'
+        const smallTextAAA = ratio >= 7 ? 'passes' : 'fails'
+        const largeTextAA = ratio >= 3 ? 'passes' : 'fails'
+        const largeTextAAA = ratio >= 4.5 ? 'passes' : 'fails'
+        const uiComponentsAA = ratio >= 3 ? 'passes' : 'fails'
+        const uiComponentsAAA = ratio >= 3 ? 'passes' : 'fails' // Both AA and AAA pass at 3:1
+
+        // Announce changes to screen readers (with fallback)
+        if (contrastAnnouncement) {
+          contrastAnnouncement.textContent =
+            `Contrast ratio ${ratio.toFixed(1)} to 1. ${compliance.description}. ` +
+            `Small text: AA ${smallTextAA}, AAA ${smallTextAAA}. Large text: AA ${largeTextAA}, AAA ${largeTextAAA}. ` +
+            `UI components: AA ${uiComponentsAA}, AAA ${uiComponentsAAA}.`
+        }
+      } catch (error) {
+        console.error('ContrastCard: Error updating display:', error)
+      }
+    }
+
+    // Initialize display
+    updateContrastCard()
+
+    // Clean up any existing listeners first
+    window.removeEventListener('colorManagerUpdate', updateContrastCard)
+    window.removeEventListener('storage', updateContrastCard)
+
+    // Listen for color changes (dispatched on window by ColorManager)
+    window.addEventListener('colorManagerUpdate', updateContrastCard)
+
+    // Storage change handler for cross-tab updates
+    const storageHandler = (event) => {
+      if (event.key === 'color-contrast-checker') {
+        updateContrastCard()
+      }
+    }
+
+    // Also listen for direct storage changes (for cross-tab updates)
+    window.addEventListener('storage', storageHandler)
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeContrastCard)
+  } else {
+    initializeContrastCard()
+  }
+
+  // Re-initialize on view transitions
+  document.addEventListener('astro:page-load', () => {
+    requestAnimationFrame(initializeContrastCard)
+  })
+</script>
+
+<style lang="scss">
+  .contrast-card {
+    --pass-color-light: #d2fbd0;
+    --pass-color-dark: #0a5f07;
+    --partial-color-light: #fbf5d0;
+    --partial-color-dark: #5f5106;
+    --fail-color-light: #fbd0da;
+    --fail-color-dark: #5f081c;
+    --pulse-color: var(--pass-color-dark);
+
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+    border-radius: var(--radius-s);
+    background-color: var(--background-color);
+    padding: var(--space-s);
+    inline-size: 100%;
+    block-size: 100%;
+    color: var(--foreground-color);
+
+    &--critical {
+      --pulse-color: var(--fail-color-light);
+
+      animation: critical-pulse 1.5s ease-in-out infinite;
+      background-color: var(--fail-color-light);
+      color: var(--fail-color-dark);
+    }
+
+    &--needs-work {
+      background-color: var(--partial-color-light);
+      color: var(--partial-color-dark);
+    }
+
+    &--partial {
+      background-color: var(--partial-color-light);
+      color: var(--partial-color-dark);
+    }
+
+    &--accessible {
+      background-color: var(--pass-color-light);
+      color: var(--pass-color-dark);
+    }
+
+    &--excellent {
+      background-color: var(--pass-color-light);
+      color: var(--pass-color-dark);
+
+      &::before {
+        position: absolute;
+        animation: shimmer 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        inset: 0;
+        background: linear-gradient(90deg, transparent, rgba(from var(--pulse-color) r g b / 0.2) 50%, transparent);
+        background-size: 200% 100%;
+        content: '';
+      }
+    }
+
+    &__header h2 {
       display: flex;
-      position: relative;
-      flex-direction: column;
       justify-content: space-between;
-      transition: all 0.3s ease;
-      border-radius: var(--radius-s);
-      background-color: var(--background-color);
-      padding: var(--space-s);
-      inline-size: 100%;
-      block-size: 100%;
-      color: var(--foreground-color);
+      align-items: center;
+
+      @container (width <= 375px) {
+        #status-text {
+          font-size: 1.5rem;
+        }
+
+        #contrast-ratio {
+          font-size: 2.5rem;
+        }
+      }
+    }
+
+    &__body {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2xs);
+
+      @container (width <= 425px) {
+        gap: var(--space-xs);
+        margin-block-start: var(--space-xs);
+
+        p {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0;
+        }
+      }
+    }
+
+    .badge {
+      border-color: transparent;
+
+      &.badge-aa-small-pass,
+      &.badge-aa-large-pass,
+      &.badge-aaa-small-pass,
+      &.badge-aaa-large-pass {
+        background-color: var(--pass-color-dark);
+        color: var(--pass-color-light);
+      }
+
+      &.badge-aa-small-fail,
+      &.badge-aa-large-fail,
+      &.badge-aaa-small-fail,
+      &.badge-aaa-large-fail {
+        background-color: var(--fail-color-dark);
+        color: var(--fail-color-light);
+      }
+    }
+
+    // Loading animation
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 200% 100%;
+      }
+      100% {
+        background-position: -200% 100%;
+      }
+    }
+
+    @keyframes critical-pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(from var(--pulse-color) r g b / 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 16px rgba(from var(--pulse-color) r g b / 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(from var(--pulse-color) r g b / 0);
+      }
+    }
+  }
+
+  :global(.darkmode) {
+    .contrast-card {
+      --pulse-color: var(--pass-color-light);
 
       &--critical {
-        --pulse-color: var(--fail-color-light);
+        --pulse-color: var(--fail-color-dark);
 
-        animation: critical-pulse 1.5s ease-in-out infinite;
-        background-color: var(--fail-color-light);
-        color: var(--fail-color-dark);
+        background-color: var(--fail-color-dark);
+        color: var(--fail-color-light);
       }
 
       &--needs-work {
-        background-color: var(--partial-color-light);
-        color: var(--partial-color-dark);
+        background-color: var(--partial-color-dark);
+        color: var(--partial-color-light);
       }
 
       &--partial {
-        background-color: var(--partial-color-light);
-        color: var(--partial-color-dark);
+        background-color: var(--partial-color-dark);
+        color: var(--partial-color-light);
       }
 
       &--accessible {
-        background-color: var(--pass-color-light);
-        color: var(--pass-color-dark);
+        background-color: var(--pass-color-dark);
+        color: var(--pass-color-light);
       }
 
       &--excellent {
-        background-color: var(--pass-color-light);
-        color: var(--pass-color-dark);
-
-        &::before {
-          position: absolute;
-          animation: shimmer 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-          inset: 0;
-          background: linear-gradient(90deg, transparent, rgba(from var(--pulse-color) r g b / 0.2) 50%, transparent);
-          background-size: 200% 100%;
-          content: '';
-        }
-      }
-
-      &__header h2 {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-
-        @container (width <= 375px) {
-          #status-text {
-            font-size: 1.5rem;
-          }
-
-          #contrast-ratio {
-            font-size: 2.5rem;
-          }
-        }
-      }
-
-      &__body {
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-2xs);
-
-        @container (width <= 425px) {
-          gap: var(--space-xs);
-          margin-block-start: var(--space-xs);
-
-          p {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0;
-          }
-        }
+        background-color: var(--pass-color-dark);
+        color: var(--pass-color-light);
       }
 
       .badge {
-        border-color: transparent;
-
         &.badge-aa-small-pass,
         &.badge-aa-large-pass,
         &.badge-aaa-small-pass,
         &.badge-aaa-large-pass {
-          background-color: var(--pass-color-dark);
-          color: var(--pass-color-light);
+          background-color: var(--pass-color-light);
+          color: var(--pass-color-dark);
         }
 
         &.badge-aa-small-fail,
         &.badge-aa-large-fail,
         &.badge-aaa-small-fail,
         &.badge-aaa-large-fail {
-          background-color: var(--fail-color-dark);
-          color: var(--fail-color-light);
-        }
-      }
-
-      // Loading animation
-      .animate-spin {
-        animation: spin 1s linear infinite;
-      }
-
-      @keyframes spin {
-        from {
-          transform: rotate(0deg);
-        }
-        to {
-          transform: rotate(360deg);
-        }
-      }
-
-      @keyframes shimmer {
-        0% {
-          background-position: 200% 100%;
-        }
-        100% {
-          background-position: -200% 100%;
-        }
-      }
-
-      @keyframes critical-pulse {
-        0% {
-          box-shadow: 0 0 0 0 rgba(from var(--pulse-color) r g b / 0.7);
-        }
-        70% {
-          box-shadow: 0 0 0 16px rgba(from var(--pulse-color) r g b / 0);
-        }
-        100% {
-          box-shadow: 0 0 0 0 rgba(from var(--pulse-color) r g b / 0);
+          background-color: var(--fail-color-light);
+          color: var(--fail-color-dark);
         }
       }
     }
-
-    :global(.darkmode) {
-      .contrast-card {
-        --pulse-color: var(--pass-color-light);
-
-        &--critical {
-          --pulse-color: var(--fail-color-dark);
-
-          background-color: var(--fail-color-dark);
-          color: var(--fail-color-light);
-        }
-
-        &--needs-work {
-          background-color: var(--partial-color-dark);
-          color: var(--partial-color-light);
-        }
-
-        &--partial {
-          background-color: var(--partial-color-dark);
-          color: var(--partial-color-light);
-        }
-
-        &--accessible {
-          background-color: var(--pass-color-dark);
-          color: var(--pass-color-light);
-        }
-
-        &--excellent {
-          background-color: var(--pass-color-dark);
-          color: var(--pass-color-light);
-        }
-
-        .badge {
-          &.badge-aa-small-pass,
-          &.badge-aa-large-pass,
-          &.badge-aaa-small-pass,
-          &.badge-aaa-large-pass {
-            background-color: var(--pass-color-light);
-            color: var(--pass-color-dark);
-          }
-
-          &.badge-aa-small-fail,
-          &.badge-aa-large-fail,
-          &.badge-aaa-small-fail,
-          &.badge-aaa-large-fail {
-            background-color: var(--fail-color-light);
-            color: var(--fail-color-dark);
-          }
-        }
-      }
-    }
-  </style>
-</div>
+  }
+</style>
