@@ -5,12 +5,16 @@ interface Props {
    */
   align?: 'start' | 'center' | 'end' | 'stretch'
   /**
+   * Align the content horizontally
+   */
+  justify?: 'start' | 'center' | 'end' | 'stretch'
+  /**
    * Label for the grid block
    */
   label?: string
 }
 
-const { align = 'center', label } = Astro.props
+const { align = 'center', justify = 'center', label } = Astro.props
 
 /**
  * GridBlock Component
@@ -19,7 +23,7 @@ const { align = 'center', label } = Astro.props
  */
 ---
 
-<div class={`grid-block align-${align}`}>
+<div class={`grid-block align-${align} justify-${justify}`}>
   {label && <span class="grid-block-label">{label}</span>}
   <slot />
 </div>
@@ -29,12 +33,13 @@ const { align = 'center', label } = Astro.props
     display: flex;
     position: relative;
     justify-content: center;
+    transition: height 0.3s ease-in-out;
+    container-type: inline-size;
     border: 1px solid var(--border-color-subtle);
     border-radius: var(--radius-s);
-    padding: var(--space-s);
-    block-size: 250px;
+    padding: calc(var(--space-m) + var(--space-2xs)) var(--space-2xs) var(--space-2xs);
+    min-block-size: 325px;
     overflow-x: clip;
-    overflow-y: scroll;
 
     &.align-start {
       align-items: flex-start;
@@ -52,12 +57,25 @@ const { align = 'center', label } = Astro.props
       align-items: stretch;
     }
 
+    &.justify-start {
+      justify-content: flex-start;
+    }
+
+    &.justify-center {
+      justify-content: center;
+    }
+
     &-label {
       position: absolute;
-      inset-block-start: var(--space-3xs);
-      inset-inline-start: var(--space-3xs);
-      color: rgba(from var(--foreground-color) r g b / 0.5);
+      inset-block-start: 0;
+      inset-inline-start: 0;
+      border-bottom: 1px solid var(--border-color-subtle);
+      padding: var(--space-4xs) var(--space-2xs);
+      inline-size: 100%;
+      color: rgba(from var(--foreground-color) r g b / 0.75);
       font-size: var(--font-size--2);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
     }
   }
 </style>

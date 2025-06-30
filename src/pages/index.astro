@@ -5,9 +5,9 @@ import UserInterface from '@components/UserInterface.astro'
 import GridBlock from '@components/GridBlock.astro'
 import RadioButtons from '@components/RadioButtons.astro'
 import ContrastCard from '@components/ContrastCard.astro'
-import ColorPalettes from '@components/ColorPalettes.astro'
+import ColorPalette from '@components/ColorPalette.astro'
 import ProgressBar from '@components/ProgressBar.astro'
-import { Accordion, AccordionItem, Badge } from 'accessible-astro-components'
+import { Accordion, AccordionItem, Avatar, Badge } from 'accessible-astro-components'
 import { Icon } from 'astro-icon/components'
 ---
 
@@ -16,134 +16,238 @@ import { Icon } from 'astro-icon/components'
     <Controls />
     <UserInterface>
       <div slot="header">
-        <a href="/css-variables" class="flex items-center gap-2">
-          <Icon name="lucide:paintbrush-vertical" size="1.5rem" />
-          Generate CSS variables
+        <a href="/design-tokens" class="navigation-link flex items-center gap-2">
+          <Icon name="lucide:paintbrush" size="1.5rem" />
+          Generate design tokens
         </a>
       </div>
       <div slot="body">
         <div class="grid-blocks">
           <GridBlock label="Button">
-            <a href="#" class="button">Astro rocks!</a>
+            <div class="flex flex-col gap-4">
+              <a href="#" class="button">Check contrast</a>
+              <a href="#" class="button ghost">Learn WCAG</a>
+            </div>
           </GridBlock>
           <GridBlock label="Badge">
             <div class="flex flex-col gap-4">
-              <Badge size="lg">New merch</Badge>
+              <Badge size="lg">AA Compliant</Badge>
+              <Badge size="lg">AAA Compliant</Badge>
+              <Badge size="lg">Needs Review</Badge>
             </div>
           </GridBlock>
           <GridBlock label="Accordion" align="center">
             <Accordion>
-              <AccordionItem title="What's on your mind?" variant="chevron">
-                <p>I'm thinking about the meaning of life. I'm thinking about the meaning of life.</p>
+              <AccordionItem title="What is WCAG compliance?" variant="chevron">
+                <p>
+                  WCAG (Web Content Accessibility Guidelines) ensures digital content is accessible to people with
+                  disabilities, including proper color contrast ratios.
+                </p>
+              </AccordionItem>
+              <AccordionItem title="Why does contrast matter?" variant="chevron">
+                <p>
+                  Good color contrast helps users with visual impairments, color blindness, and those using devices in
+                  bright sunlight read content clearly.
+                </p>
               </AccordionItem>
             </Accordion>
           </GridBlock>
-          <GridBlock>
+          <GridBlock label="Radio buttons" justify="start">
             <RadioButtons
-              legend="Which framework"
-              name="framework"
+              legend="Compliance level needed"
+              name="compliance"
               options={[
-                { id: 'astro', label: 'Astro of course', value: 'astro' },
-                { id: 'react', label: 'React is great', value: 'react' },
-                { id: 'vue', label: 'Vue is the best', value: 'vue' },
-                { id: 'svelte', label: 'Svelte is cool', value: 'svelte' },
+                { id: 'aa-normal', label: 'AA Normal Text (4.5:1)', value: 'aa-normal' },
+                { id: 'aa-large', label: 'AA Large Text (3:1)', value: 'aa-large' },
+                { id: 'aaa-normal', label: 'AAA Normal Text (7:1)', value: 'aaa-normal' },
+                { id: 'aaa-large', label: 'AAA Large Text (4.5:1)', value: 'aaa-large' },
               ]}
             />
           </GridBlock>
-          <GridBlock>
+          <GridBlock label="Contrast checker">
             <ContrastCard />
           </GridBlock>
-          <GridBlock>
-            <div class="text-block flex flex-col gap-2">
-              <h2 class="text-2xl">Block of text</h2>
-              <p>
-                Astro combines static generation with dynamic components, delivering fast performance through minimal
-                JavaScript. With intuitive syntax and seamless framework integration, it simplifies building
-                content-focused websites.
-              </p>
+          <GridBlock label="Color palette" justify="start" align="start">
+            <ColorPalette variant="large" />
+          </GridBlock>
+          <GridBlock label="Avatar" justify="start">
+            <div class="flex flex-col gap-4">
+              <Avatar initials="WC" title="William Charles" subtitle="UX Accessibility Specialist" />
+              <Avatar initials="AG" title="Ava Green" subtitle="Inclusive Design Lead" />
             </div>
           </GridBlock>
-          <GridBlock>
-            <ColorPalettes />
-          </GridBlock>
-          <GridBlock>
-            <div class="flex w-full flex-col gap-4">
-              <ProgressBar icon="lucide:eye" label="Vision" progress={80} />
-              <ProgressBar icon="lucide:ear" label="Hearing" progress={60} />
-              <ProgressBar icon="lucide:hand" label="Touch" progress={40} />
+          <GridBlock label="Progress bar">
+            <div class="flex w-full flex-col gap-2">
+              <ProgressBar icon="lucide:eye" label="Visual Accessibility" progress={85} />
+              <ProgressBar icon="lucide:ear" label="Audio Accessibility" progress={70} />
+              <ProgressBar icon="lucide:hand" label="Motor Accessibility" progress={60} />
+              <ProgressBar icon="lucide:brain" label="Cognitive Accessibility" progress={75} />
             </div>
           </GridBlock>
-          <GridBlock>
-            <Icon name="lucide:smile" size="8rem" style="color: var(--color-background-base)" />
+          <GridBlock label="Icon">
+            <div class="icon-container">
+              <Icon name="lucide:accessibility" size="8rem" style="color: var(--color-foreground-base)" />
+            </div>
           </GridBlock>
         </div>
       </div>
     </UserInterface>
-
-    <style lang="scss">
-      .grid-blocks {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: var(--space-2xs);
-        margin-block-start: var(--space-s);
-
-        :global(.grid-block) {
-          &:nth-child(3) {
-            grid-column: span 2;
-          }
-
-          &:nth-child(5) {
-            grid-column: span 2;
-            block-size: 100%;
-          }
-
-          &:nth-child(6) {
-            grid-column: span 3;
-          }
-
-          &:nth-child(8) {
-            grid-column: span 3;
-          }
-        }
-      }
-
-      .accordion {
-        inline-size: 100%;
-
-        :global(.wrapper) {
-          border-radius: var(--radius-s);
-          background-color: var(--color-background-base);
-        }
-
-        :global(.title),
-        :global(.content) {
-          padding-inline: var(--space-xs);
-          color: var(--color-foreground-base);
-        }
-
-        :global(.title) {
-          padding-block: 0;
-        }
-      }
-
-      .badge {
-        border-color: var(--color-background-base);
-        background-color: var(--color-background-base);
-        color: var(--color-foreground-base);
-      }
-
-      .button {
-        border-color: var(--color-background-base);
-        background-color: var(--color-background-base);
-        color: var(--color-foreground-base);
-      }
-
-      .text-block {
-        border-radius: var(--radius-s);
-        background-color: var(--color-background-base);
-        padding: var(--space-s);
-        color: var(--color-foreground-base);
-      }
-    </style>
   </section>
 </DefaultLayout>
+
+<style lang="scss">
+  @use '../assets/scss/base/breakpoint' as *;
+  @use '../assets/scss/base/mixins' as *;
+
+  .grid-blocks {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    grid-template-areas:
+      'contrast'
+      'button'
+      'badge'
+      'accordion'
+      'radio'
+      'palette'
+      'avatar'
+      'progressbar'
+      'icon';
+    gap: var(--space-2xs);
+    margin-block-start: var(--space-s);
+
+    @include breakpoint(550px) {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-areas:
+        'contrast contrast'
+        'palette palette'
+        'accordion avatar'
+        'button radio'
+        'progressbar progressbar'
+        'badge icon';
+    }
+
+    @include breakpoint(s) {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-areas:
+        'contrast contrast'
+        'palette palette'
+        'accordion avatar'
+        'button radio'
+        'progressbar progressbar'
+        'badge icon';
+    }
+
+    @include breakpoint(xl) {
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-areas:
+        'button button button badge badge accordion accordion accordion accordion radio radio radio'
+        'contrast contrast contrast contrast contrast palette palette palette palette palette palette palette'
+        'avatar avatar avatar progressbar progressbar progressbar progressbar progressbar progressbar progressbar icon icon';
+    }
+
+    :global(.grid-block) {
+      &:nth-child(1) {
+        grid-area: button;
+      }
+
+      &:nth-child(2) {
+        grid-area: badge;
+      }
+
+      &:nth-child(3) {
+        grid-area: accordion;
+      }
+
+      &:nth-child(4) {
+        grid-area: radio;
+      }
+
+      &:nth-child(5) {
+        grid-area: contrast;
+      }
+
+      &:nth-child(6) {
+        grid-area: palette;
+      }
+
+      &:nth-child(7) {
+        grid-area: avatar;
+      }
+
+      &:nth-child(8) {
+        grid-area: progressbar;
+      }
+
+      &:nth-child(9) {
+        grid-area: icon;
+      }
+    }
+  }
+
+  .accordion {
+    inline-size: 100%;
+
+    :global(.wrapper) {
+      margin-block-start: var(--space-2xs);
+      border: transparent;
+      border-radius: var(--radius-s);
+      background-color: var(--color-background-base);
+    }
+
+    :global(.title),
+    :global(.content) {
+      padding-inline: var(--space-xs);
+      color: var(--color-foreground-base);
+    }
+
+    :global(.title) {
+      padding-block: 0;
+      text-decoration-thickness: 2px !important;
+
+      @include text-decoration(transparent, currentColor);
+    }
+  }
+
+  .avatar {
+    :global(.initials-container) {
+      border-color: var(--color-foreground-base);
+      background-color: var(--color-background-base);
+      color: var(--color-foreground-base);
+    }
+  }
+
+  .badge {
+    border-color: var(--color-background-base);
+    background-color: var(--color-background-base);
+    color: var(--color-foreground-base);
+  }
+
+  .button {
+    border-color: var(--color-background-base);
+    background-color: var(--color-background-base);
+    inline-size: 100%;
+    color: var(--color-foreground-base);
+
+    &:where(:hover, :focus-visible) {
+      background-color: transparent;
+      color: var(--foreground-color);
+    }
+
+    &.ghost {
+      border-color: var(--color-background-base);
+      background-color: transparent;
+      color: var(--foreground-color);
+
+      &:where(:hover, :focus-visible) {
+        background-color: var(--color-background-base);
+        color: var(--color-foreground-base);
+      }
+    }
+  }
+
+  .icon-container {
+    border-radius: var(--radius-s);
+    background-color: var(--color-background-base);
+    padding: var(--space-s);
+  }
+</style>

@@ -1,10 +1,10 @@
 {
   "name": "color-contrast-checker",
   "description": "A color contrast checker for Astro with a color palette generator",
-  "version": "4.0.0",
+  "version": "1.0.0",
   "author": "Incluud",
   "license": "MIT",
-  "homepage": "https://accessible-astro.netlify.app/",
+  "homepage": "https://color-contrast-checker.incluud.dev/",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",

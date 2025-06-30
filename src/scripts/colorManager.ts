@@ -7,8 +7,8 @@ export interface ColorState {
 
 export class ColorManager {
   private static instance: ColorManager
-  private foregroundColor: string = '#4646ff'
-  private backgroundColor: string = '#e6e64a'
+  private foregroundColor: string = '#521b92'
+  private backgroundColor: string = '#ffd478'
   private isInitialized: boolean = false
 
   // Storage key for localStorage

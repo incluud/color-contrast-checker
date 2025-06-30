@@ -21,15 +21,25 @@ const { class: className, href } = Astro.props
 ---
 
 <a href={href} class:list={[className, 'external-link']} target="_blank" rel="noopener noreferrer">
-  <slot />
+  <span><slot /></span>
   <Icon name="lucide:external-link" />
   <span class="sr-only">Opens in a new tab</span>
 </a>
 
-<style>
+<style lang="scss">
+  @use '../assets/scss/base/mixins' as *;
+
   .external-link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-3xs);
+    display: inline;
+    text-decoration: none;
+
+    > span:first-child {
+      @include text-decoration($color: var(--foreground-base), $hoverColor: var(--foreground-base));
+    }
+  }
+
+  .external-link svg {
+    display: inline;
+    translate: 0.1em -0.1em;
   }
 </style>

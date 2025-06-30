@@ -8,13 +8,9 @@ interface Props {
    * The id of the input
    */
   id: string
-  /**
-   * The preview color (optional)
-   */
-  color?: string
 }
 
-const { label, id, color } = Astro.props
+const { label, id } = Astro.props
 
 /**
  * Input Component
@@ -28,7 +24,6 @@ const { label, id, color } = Astro.props
   <div class="input__field">
     <input type="text" id={id} data-color-input aria-describedby={`${id}-error`} />
     <input type="color" id={`${id}-picker`} data-color-picker />
-    {color && <div class="input__color__preview" />}
   </div>
   <div id={`${id}-error`} class="input__error" aria-live="polite"></div>
 </div>
@@ -263,6 +258,47 @@ const { label, id, color } = Astro.props
       // Set initial values on the NEW elements
       setInitialValues()
 
+      // Update inputs from external ColorManager changes (like swap button)
+      function updateInputsFromColorManager(event) {
+        const foregroundColor = colorManager.getForegroundColor()
+        const backgroundColor = colorManager.getBackgroundColor()
+
+        // Update text inputs
+        const fgInput = document.getElementById('foreground-color')
+        const bgInput = document.getElementById('background-color')
+
+        if (fgInput && fgInput.value !== foregroundColor) {
+          fgInput.value = foregroundColor
+          window.storeInputValue(fgInput.id, foregroundColor)
+        }
+
+        if (bgInput && bgInput.value !== backgroundColor) {
+          bgInput.value = backgroundColor
+          window.storeInputValue(bgInput.id, backgroundColor)
+        }
+
+        // Update color pickers
+        const fgPicker = document.getElementById('foreground-color-picker')
+        const bgPicker = document.getElementById('background-color-picker')
+
+        if (fgPicker && fgPicker.value !== foregroundColor) {
+          fgPicker.value = foregroundColor
+        }
+
+        if (bgPicker && bgPicker.value !== backgroundColor) {
+          bgPicker.value = backgroundColor
+        }
+      }
+
+      // Clean up any existing listeners first
+      window.removeEventListener('colorManagerUpdate', updateInputsFromColorManager)
+
+      // Listen for color changes (dispatched on window by ColorManager)
+      window.addEventListener('colorManagerUpdate', updateInputsFromColorManager)
+
+      // Initialize with current ColorManager state (same as ContrastCard does)
+      updateInputsFromColorManager()
+
       // Restore focus and selection if there was an active text input
       if (activeId && selectionStart !== null && selectionEnd !== null) {
         const restoredInput = document.getElementById(activeId)
@@ -287,7 +323,7 @@ const { label, id, color } = Astro.props
   })
 </script>
 
-<style lang="scss" define:vars={{ previewColor: color }}>
+<style lang="scss">
   .input {
     label {
       display: block;
@@ -296,18 +332,15 @@ const { label, id, color } = Astro.props
     }
 
     &__field {
-      display: flex;
       position: relative;
-      align-items: center;
-      gap: var(--space-2xs);
 
       input[type='text'] {
-        flex: 1;
         transition: border-color 0.2s ease;
-        border: 1px solid light-dark(var(--color-neutral-300), var(--color-neutral-500));
+        border: 1px solid var(--border-color);
         border-radius: var(--radius-s);
         background-color: light-dark(var(--color-neutral-100), var(--color-neutral-900));
         padding: var(--space-2xs) var(--space-xs);
+        block-size: 3.5em;
         font-size: 0.9rem;
         font-family: monospace;
 
@@ -323,13 +356,16 @@ const { label, id, color } = Astro.props
       }
 
       input[type='color'] {
+        position: absolute;
         cursor: pointer;
-        border: 1px solid light-dark(var(--color-neutral-300), var(--color-neutral-500));
-        border-radius: var(--radius-s);
+        inset-block-end: 0.4em;
+        inset-inline-end: 0.4em;
+        border: 1px solid var(--border-color-subtle);
+        border-radius: var(--radius-m);
         background: none;
         padding: 0;
-        inline-size: 3rem;
-        block-size: 2.5rem;
+        inline-size: 1.85em;
+        block-size: 1.85em;
 
         &:focus {
           outline: 2px solid var(--color-focus, #3182ce);
@@ -361,20 +397,6 @@ const { label, id, color } = Astro.props
       color: var(--color-error, #e53e3e);
       font-weight: 500;
       font-size: 0.875rem;
-    }
-
-    &__color__preview {
-      position: absolute;
-      translate: -8px -8px;
-      opacity: 0; /* Hidden for now since we have the color picker */
-      inset-block-end: 0;
-      inset-inline-end: 0;
-      border-radius: var(--radius-s);
-      background-color: var(--previewColor);
-      aspect-ratio: 1;
-      inline-size: 2rem;
-      block-size: 2rem;
-      pointer-events: none;
     }
   }
 </style>

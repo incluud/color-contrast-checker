@@ -4,6 +4,37 @@
   navigation: auto;
 }
 
+/* Custom view transition animations for interface section */
+::view-transition-old(interface-section) {
+  animation: slide-out-down 0.3s ease-out;
+}
+
+::view-transition-new(interface-section) {
+  animation: slide-in-up 0.3s ease-out;
+}
+
+@keyframes slide-out-down {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in-up {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 body {
   font-weight: 400;
   font-size: 1.15rem;
@@ -29,7 +60,8 @@ a {
 }
 
 main a,
-footer a {
+footer a,
+footer button:not(:has(.modal-close-icon)) {
   @include text-decoration(var(--link-color), var(--link-hover-color));
 
   color: var(--link-color);

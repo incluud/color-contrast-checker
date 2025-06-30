@@ -70,15 +70,15 @@ const {
     display: none;
     transition: all var(--animation-speed-fast) var(--cubic-bezier);
     border-radius: 50%;
-    background: var(--color-foreground-base);
-    width: 7px;
-    height: 7px;
+    background-color: var(--color-foreground-base);
+    inline-size: 10px;
+    block-size: 10px;
     content: '';
   }
 
   input:checked ~ .indicator {
     border-color: var(--color-background-base);
-    background-color: transparent;
+    background-color: var(--color-background-base);
   }
 
   input:checked ~ .indicator::after {

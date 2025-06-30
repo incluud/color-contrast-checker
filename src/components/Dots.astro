@@ -1,0 +1,42 @@
+---
+/**
+ * Dots Component
+ *
+ * @description A component that displays the dots for the color contrast checker
+ */
+---
+
+<div class="dots">
+  <div class="dot dot__red"></div>
+  <div class="dot dot__yellow"></div>
+  <div class="dot dot__green"></div>
+</div>
+
+<style lang="scss">
+  .dots {
+    --color-red: #fe5f58;
+    --color-yellow: #ffbc30;
+    --color-green: #26c941;
+
+    display: flex;
+    gap: var(--space-2xs);
+  }
+
+  .dot {
+    border-radius: 50%;
+    inline-size: 1rem;
+    block-size: 1rem;
+
+    &__red {
+      background-color: var(--color-red);
+    }
+
+    &__yellow {
+      background-color: var(--color-yellow);
+    }
+
+    &__green {
+      background-color: var(--color-green);
+    }
+  }
+</style>

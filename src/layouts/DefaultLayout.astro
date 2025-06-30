@@ -6,11 +6,11 @@ import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
 
 const {
-  title = 'Astro',
-  description = 'A starter project with accessibility features using Astro static site builder. Contains accessible landmarks, skip links, a dark mode color scheme, better focus outline and keyboard menu navigation.',
+  title = 'Color Contrast Checker',
+  description = 'A color contrast checker for Astro with a color palette generator.',
   url = Astro.site,
   image = 'social-preview-image.png',
-  author = 'Mark Teekman',
+  author = 'Incluud',
 } = Astro.props
 ---
 
@@ -37,9 +37,40 @@ const {
       import('../scripts/global-color-manager.ts')
     </script>
 
+    <!-- Scroll position preservation for view transitions -->
+    <script is:inline>
+      // Store scroll position before page swap
+      let storedScrollPosition = 0
+
+      // Before navigation (page being unloaded)
+      window.addEventListener('pageswap', (event) => {
+        // Store the current scroll position
+        storedScrollPosition = window.scrollY
+      })
+
+      // After navigation (new page loaded)
+      window.addEventListener('pagereveal', (event) => {
+        // Only restore scroll position if we have one stored
+        // and if this is a same-origin navigation (view transition)
+        if (storedScrollPosition > 0 && event.viewTransition) {
+          // Wait for the view transition to be ready, then restore scroll
+          event.viewTransition.ready.then(() => {
+            window.scrollTo({
+              top: storedScrollPosition,
+              behavior: 'instant', // Use instant to avoid conflicting with the slide animation
+            })
+            // Reset stored position
+            storedScrollPosition = 0
+          })
+        }
+      })
+    </script>
+
     <style lang="scss" is:global>
+      @use '../assets/scss/base/breakpoint' as *;
+
       :root {
-        --color-foreground-base: #4646ff;
+        --color-foreground-base: #521b92;
 
         --color-foreground-10: oklch(from var(--color-foreground-base) 90% c h);
         --color-foreground-20: oklch(from var(--color-foreground-base) 80% c h);
@@ -47,7 +78,7 @@ const {
         --color-foreground-40: oklch(from var(--color-foreground-base) 60% c h);
         --color-foreground-50: oklch(from var(--color-foreground-base) 50% c h);
 
-        --color-background-base: #e6e64a;
+        --color-background-base: #ffd478;
 
         --color-background-10: oklch(from var(--color-background-base) 90% c h);
         --color-background-20: oklch(from var(--color-background-base) 80% c h);
@@ -65,7 +96,7 @@ const {
       body {
         display: flex;
         flex-direction: column;
-        overflow-x: clip;
+        // overflow-x: clip;
 
         main {
           flex: 1 0 auto;
@@ -84,8 +115,20 @@ const {
 
       .interface {
         display: grid;
-        grid-template-columns: 1fr 3fr;
-        gap: 2rem;
+        grid-template-columns: 1fr;
+        gap: var(--space-s);
+
+        @include breakpoint(m) {
+          grid-template-columns: 375px 1fr;
+        }
+      }
+
+      .navigation-link {
+        &:where(:hover, :focus-visible) {
+          svg {
+            animation: boop var(--animation-duration-hover) var(--animation-timing) forwards;
+          }
+        }
       }
     </style>
   </body>

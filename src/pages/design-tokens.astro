@@ -1,0 +1,366 @@
+---
+import DefaultLayout from '@layouts/DefaultLayout.astro'
+import Controls from '@components/Controls.astro'
+import UserInterface from '@components/UserInterface.astro'
+import ColorPalette from '@components/ColorPalette.astro'
+import ExternalLink from '@components/ExternalLink.astro'
+import { Code } from 'astro-expressive-code/components'
+import { Icon } from 'astro-icon/components'
+import { Notification, Tabs, TabsList, TabsTab, TabsPanel } from 'accessible-astro-components'
+---
+
+<DefaultLayout title="Design Tokens">
+  <section class="interface">
+    <Controls />
+    <UserInterface>
+      <div slot="header">
+        <a href="/" class="navigation-link flex items-center gap-2">
+          <Icon name="lucide:sparkles" size="1.5rem" />
+          Component showcase
+        </a>
+      </div>
+      <div slot="body" class="wrapper">
+        <div class="space-content">
+          <h2 class="text-2xl font-bold">Color palettes</h2>
+          <p>
+            The color palettes are generated from the foreground and background colors using the modern OKLCH color
+            space. Use these in your own project to create a consistent color scheme.
+          </p>
+          <p>
+            OKLCH uses perceptual lightness, making colors with the same lightness value appear equally bright to the
+            human eye. This predictable behavior ensures better contrast ratios and WCAG compliance across your color
+            palette. This article from Evil Martians explains <ExternalLink
+              href="https://evilmartians.com/chronicles/oklch-in-css-why-quit-rgb-hsl"
+              >why OKLCH is better for accessibility</ExternalLink
+            >.
+          </p>
+          <ColorPalette />
+        </div>
+        <Tabs>
+          <TabsList>
+            <TabsTab id="developers-tab" controls="developers-panel" selected>For Developers (CSS)</TabsTab>
+            <TabsTab id="designers-tab" controls="designers-panel">For Designers (Figma)</TabsTab>
+          </TabsList>
+
+          <TabsPanel id="developers-panel" labelledby="developers-tab" selected>
+            <Code
+              lang="css"
+              wrap={true}
+              code={`
+ :root {
+  --color-foreground-base: #4646ff;
+
+  --color-foreground-10: oklch(from var(--color-foreground-base) 90% c h);
+  --color-foreground-20: oklch(from var(--color-foreground-base) 80% c h);
+  --color-foreground-30: oklch(from var(--color-foreground-base) 70% c h);
+  --color-foreground-40: oklch(from var(--color-foreground-base) 60% c h);
+  --color-foreground-50: oklch(from var(--color-foreground-base) 50% c h);
+
+  --color-background-base: #e6e64a;
+
+  --color-background-10: oklch(from var(--color-background-base) 90% c h);
+  --color-background-20: oklch(from var(--color-background-base) 80% c h);
+  --color-background-30: oklch(from var(--color-background-base) 70% c h);
+  --color-background-40: oklch(from var(--color-background-base) 60% c h);
+  --color-background-50: oklch(from var(--color-background-base) 50% c h);
+}
+`}
+            />
+          </TabsPanel>
+          <TabsPanel id="designers-panel" labelledby="designers-tab">
+            <Notification type="info">
+              <div>
+                <h3 class="mb-2 flex items-center gap-2 text-lg font-bold">
+                  <Icon name="lucide:info" size="1.5rem" /> About Design Token Formats
+                </h3>
+                <p>
+                  Each Figma plugin uses its own format. For best compatibility and future-proofing, we recommend <ExternalLink
+                    href="https://tokens.studio/">Tokens Studio</ExternalLink
+                  > as it follows the <ExternalLink href="https://design-tokens.github.io/community-group/"
+                    >W3C Design Tokens Community Group</ExternalLink
+                  > standard. The simplified format below works for manual imports or basic plugins.
+                </p>
+              </div>
+            </Notification>
+            <Code
+              lang="json"
+              wrap={true}
+              code={`{
+  "collection_base_colors": {
+    "$extensions": {
+      "figma": { 
+        "collection": "Base Colors",
+        "scopes": ["ALL_SCOPES"]
+      }
+    },
+    "color": {
+      "$type": "color",
+      "foreground-base": { 
+        "$value": "#521b92",
+        "$description": "Primary foreground color for text and UI elements"
+      },
+      "background-base": { 
+        "$value": "#ffd478",
+        "$description": "Primary background color for containers"
+      }
+    }
+  },
+  "collection_foreground_palette": {
+    "$extensions": {
+      "figma": { 
+        "collection": "Foreground Palette",
+        "scopes": ["ALL_SCOPES"]
+      }
+    },
+    "color": {
+      "$type": "color",
+      "foreground-10": { 
+        "$value": "oklch(from {collection_base_colors.color.foreground-base} 90% c h)",
+        "$description": "Lightest foreground shade"
+      },
+      "foreground-20": { 
+        "$value": "oklch(from {collection_base_colors.color.foreground-base} 80% c h)",
+        "$description": "Light foreground shade"
+      },
+      "foreground-30": { 
+        "$value": "oklch(from {collection_base_colors.color.foreground-base} 70% c h)",
+        "$description": "Medium-light foreground shade"
+      },
+      "foreground-40": { 
+        "$value": "oklch(from {collection_base_colors.color.foreground-base} 60% c h)",
+        "$description": "Medium-dark foreground shade"
+      },
+      "foreground-50": { 
+        "$value": "oklch(from {collection_base_colors.color.foreground-base} 50% c h)",
+        "$description": "Darkest foreground shade"
+      }
+    }
+  },
+  "collection_background_palette": {
+    "$extensions": {
+      "figma": { 
+        "collection": "Background Palette",
+        "scopes": ["ALL_SCOPES"]
+      }
+    },
+    "color": {
+      "$type": "color",
+      "background-10": { 
+        "$value": "oklch(from {collection_base_colors.color.background-base} 90% c h)",
+        "$description": "Lightest background shade"
+      },
+      "background-20": { 
+        "$value": "oklch(from {collection_base_colors.color.background-base} 80% c h)",
+        "$description": "Light background shade"
+      },
+      "background-30": { 
+        "$value": "oklch(from {collection_base_colors.color.background-base} 70% c h)",
+        "$description": "Medium-light background shade"
+      },
+      "background-40": { 
+        "$value": "oklch(from {collection_base_colors.color.background-base} 60% c h)",
+        "$description": "Medium-dark background shade"
+      },
+      "background-50": { 
+        "$value": "oklch(from {collection_base_colors.color.background-base} 50% c h)",
+        "$description": "Darkest background shade"
+      }
+    }
+  }
+}`}
+            />
+          </TabsPanel>
+        </Tabs>
+      </div>
+    </UserInterface>
+  </section>
+</DefaultLayout>
+
+<script is:inline>
+  // Store handler reference for proper cleanup
+  let currentStorageHandler = null
+
+  function initializeDynamicCodeBlocks() {
+    if (!window.ColorManager) {
+      requestAnimationFrame(initializeDynamicCodeBlocks)
+      return
+    }
+
+    // Only initialize if we're on the CSS variables page
+    const developersContainer = document.getElementById('developers-panel')
+    if (!developersContainer) {
+      // Silently return - we're probably on a different page
+      return
+    }
+
+    const designersContainer = document.getElementById('designers-panel')
+    if (!designersContainer) {
+      console.error('CSS Variables: designers-panel not found, but developers-panel exists')
+      return
+    }
+
+    // Get original HTML structure to extract everything except the color values
+    const originalDevelopersHtml = developersContainer.innerHTML
+    const originalDesignersHtml = designersContainer.innerHTML
+
+    /**
+     * Update code blocks with new colors using precise text replacement
+     */
+    function updateCodeBlocks() {
+      const fgColor = window.ColorManager.getForegroundColor()
+      const bgColor = window.ColorManager.getBackgroundColor()
+
+      if (!fgColor || !bgColor) return
+
+      // Find all text nodes and replace hex colors in them
+      // This preserves the DOM structure and syntax highlighting
+      replaceTextInElement(developersContainer, fgColor, bgColor)
+      replaceTextInElement(designersContainer, fgColor, bgColor)
+    }
+
+    /**
+     * Replace hex colors in text nodes only, preserving DOM structure
+     */
+    function replaceTextInElement(container, fgColor, bgColor) {
+      const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null, false)
+
+      const textNodes = []
+      let node
+      while ((node = walker.nextNode())) {
+        textNodes.push(node)
+      }
+
+      textNodes.forEach((textNode) => {
+        let text = textNode.textContent
+        let hasChanged = false
+
+        // Only process text nodes that contain hex colors (3, 6, or 8 digits)
+        if (/#[a-fA-F0-9]{3,8}/.test(text)) {
+          // Check the context around this text node to determine color type
+          let contextElement = textNode.parentElement
+          let contextText = ''
+
+          // Walk up the DOM to find meaningful context
+          while (
+            contextElement &&
+            !contextText.includes('foreground-base') &&
+            !contextText.includes('background-base')
+          ) {
+            contextText = contextElement.textContent || ''
+            contextElement = contextElement.parentElement
+          }
+
+          // Replace hex color based on context (supports 3, 6, and 8 digit hex)
+          text = text.replace(/#[a-fA-F0-9]{3,8}/g, (match) => {
+            hasChanged = true
+
+            if (contextText.includes('foreground-base')) {
+              return fgColor
+            } else if (contextText.includes('background-base')) {
+              return bgColor
+            }
+
+            // Final fallback - shouldn't happen but just in case
+            return match
+          })
+        }
+
+        if (hasChanged) {
+          textNode.textContent = text
+        }
+      })
+    }
+
+    // Initialize with current colors
+    updateCodeBlocks()
+
+    // Storage change handler for cross-tab updates
+    const storageHandler = (event) => {
+      if (event.key === 'color-contrast-checker') {
+        updateCodeBlocks()
+      }
+    }
+
+    // Clean up any existing listeners first
+    window.removeEventListener('colorManagerUpdate', updateCodeBlocks)
+    if (currentStorageHandler) {
+      window.removeEventListener('storage', currentStorageHandler)
+    }
+
+    // Listen for color changes
+    window.addEventListener('colorManagerUpdate', updateCodeBlocks)
+    window.addEventListener('storage', storageHandler)
+
+    // Store reference for future cleanup
+    currentStorageHandler = storageHandler
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeDynamicCodeBlocks)
+  } else {
+    initializeDynamicCodeBlocks()
+  }
+
+  // Re-initialize on view transitions
+  document.addEventListener('astro:page-load', () => {
+    requestAnimationFrame(initializeDynamicCodeBlocks)
+  })
+</script>
+
+<style lang="scss">
+  @use '../assets/scss/base/breakpoint' as *;
+
+  .wrapper {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding-block: var(--space-s);
+
+    @include breakpoint(xl) {
+      grid-template-columns: 350px 1fr;
+    }
+  }
+
+  .tabs-list {
+    position: relative;
+    flex-wrap: nowrap;
+    gap: 0;
+    margin-block-end: var(--space-2xs);
+    border-bottom: 2px solid var(--border-color-subtle);
+    overflow-x: auto;
+
+    @include breakpoint(l) {
+      flex-wrap: wrap;
+    }
+  }
+
+  .tab {
+    position: relative;
+    flex-grow: 0;
+    flex-shrink: 0;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    padding: 0 var(--space-xs);
+
+    &[aria-selected='true'],
+    &:where(:hover, :focus-visible) {
+      z-index: 1;
+      box-shadow: none;
+      border-bottom-color: light-dark(var(--color-primary-400), var(--color-secondary-100));
+      background-color: transparent;
+      color: var(--foreground-color);
+    }
+  }
+
+  .tab-panel {
+    border: none;
+    border-radius: 0;
+    padding: 0;
+  }
+
+  :global(.expressive-code) {
+    inline-size: 100%;
+  }
+</style>

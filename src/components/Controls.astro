@@ -3,6 +3,7 @@ import Form from '@components/Form.astro'
 import Input from '@components/Input.astro'
 import AstroBadge from '@components/AstroBadge.astro'
 import { Icon } from 'astro-icon/components'
+import { Modal, Notification } from 'accessible-astro-components'
 
 /**
  * Controls Component
@@ -18,12 +19,194 @@ import { Icon } from 'astro-icon/components'
     and more. Use the color picker or type directly.
   </p>
   <Form>
-    <Input label="Foreground Color" id="foreground-color" color="var(--color-foreground-base)" />
-    <Input label="Background Color" id="background-color" color="var(--color-background-base)" />
-    <button class="flex items-center gap-2" type="button">
-      <Icon name="lucide:arrow-left-right" />
-      Swap colors
-    </button>
+    <Input label="Foreground Color" id="foreground-color" />
+    <Input label="Background Color" id="background-color" />
   </Form>
+  <div class="flex flex-col gap-2">
+    <button id="swap-colors" class="flex items-center gap-2" type="button">
+      <Icon name="lucide:arrow-left-right" />
+      <span>Swap color positions</span>
+    </button>
+    <button id="modal-trigger" class="flex items-center gap-2">
+      <Icon name="lucide:share" />
+      <span>Share color combination</span>
+    </button>
+    <!-- Screen reader feedback for swap action -->
+    <div id="swap-feedback" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+  </div>
   <AstroBadge />
+
+  <Modal triggerId="modal-trigger" title="Share your color combination">
+    <p>Copy the URL to share your color combination with others.</p>
+    <input id="share-url" type="text" readonly value="" />
+    <button id="copy-url" class="button">Copy URL</button>
+    <Notification id="copy-feedback" type="success" class="hidden" aria-live="polite">
+      URL copied to clipboard! 🎉
+    </Notification>
+  </Modal>
 </div>
+
+<script is:inline>
+  // Wait for global functions to be available
+  function waitForGlobals(callback) {
+    if (window.ColorManager && window.storeInputValue && window.getStoredInputValue) {
+      callback()
+    } else {
+      setTimeout(() => waitForGlobals(callback), 50)
+    }
+  }
+
+  // Global handler functions to prevent duplicates
+  window.swapColorsHandler = function () {
+    const colorManager = window.ColorManager
+    if (!colorManager) {
+      console.warn('ColorManager not available')
+      return
+    }
+
+    // Get current colors and swap them
+    const currentFg = colorManager.getForegroundColor()
+    const currentBg = colorManager.getBackgroundColor()
+
+    colorManager.setForegroundColor(currentBg)
+    colorManager.setBackgroundColor(currentFg)
+
+    // Provide screen reader feedback
+    const feedback = document.getElementById('swap-feedback')
+    if (feedback) {
+      feedback.textContent = `Colors swapped. Foreground is now ${currentBg}, background is now ${currentFg}.`
+
+      // Clear the message after a few seconds to keep it clean
+      setTimeout(() => {
+        feedback.textContent = ''
+      }, 3000)
+    }
+  }
+
+  // Handle color swapping functionality
+  function handleColorSwap() {
+    const swapButton = document.getElementById('swap-colors')
+    if (!swapButton) return
+
+    // Clean up any existing listeners first
+    swapButton.removeEventListener('click', window.swapColorsHandler)
+
+    // Add the listener
+    swapButton.addEventListener('click', window.swapColorsHandler)
+  }
+
+  window.copyUrlHandler = async function () {
+    const urlInput = document.getElementById('share-url')
+    const feedback = document.getElementById('copy-feedback')
+
+    if (!urlInput || !feedback) return
+
+    try {
+      // Update the URL input with current URL (in case colors changed)
+      urlInput.value = window.location.href
+
+      // Copy to clipboard
+      await navigator.clipboard.writeText(urlInput.value)
+
+      // Show success feedback
+      feedback.classList.remove('hidden')
+      feedback.textContent = 'URL copied to clipboard! 🎉'
+
+      // Hide feedback after 3 seconds
+      setTimeout(() => {
+        feedback.classList.add('hidden')
+      }, 3000)
+    } catch (error) {
+      console.error('Failed to copy URL:', error)
+
+      // Fallback: select the text for manual copying
+      urlInput.select()
+      urlInput.setSelectionRange(0, 99999) // For mobile devices
+
+      // Update feedback for fallback
+      feedback.classList.remove('hidden')
+      feedback.textContent = 'Please copy the selected URL manually'
+      feedback.classList.add('text-amber-600')
+      feedback.classList.remove('text-green-600')
+
+      setTimeout(() => {
+        feedback.classList.add('hidden')
+        feedback.classList.remove('text-amber-600')
+        feedback.classList.add('text-green-600')
+      }, 4000)
+    }
+  }
+
+  // Handle URL copying functionality
+  function handleUrlCopy() {
+    const copyButton = document.getElementById('copy-url')
+    const modalTrigger = document.getElementById('modal-trigger')
+    if (!copyButton || !modalTrigger) return
+
+    // Update URL when modal opens
+    modalTrigger.addEventListener('click', () => {
+      // Small delay to ensure modal is open
+      setTimeout(() => {
+        const urlInput = document.getElementById('share-url')
+        if (urlInput) {
+          urlInput.value = window.location.href
+        }
+      }, 100)
+    })
+
+    // Clean up any existing listeners first
+    copyButton.removeEventListener('click', window.copyUrlHandler)
+
+    // Add the listener
+    copyButton.addEventListener('click', window.copyUrlHandler)
+  }
+
+  // Initialize functionality
+  function initializeControls() {
+    waitForGlobals(() => {
+      handleColorSwap()
+      handleUrlCopy()
+    })
+  }
+
+  // Initialize on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeControls)
+  } else {
+    initializeControls()
+  }
+
+  // Re-initialize on view transitions
+  document.addEventListener('astro:page-load', () => {
+    setTimeout(initializeControls, 50)
+  })
+</script>
+
+<style lang="scss">
+  @use '../assets/scss/base/mixins' as *;
+
+  a,
+  button {
+    inline-size: fit-content;
+  }
+
+  button {
+    @include text-decoration(var(--color-text-subtle), var(--color-text-subtle), 2px, 1px, 4px, 2px);
+
+    &:where(:hover, :focus-visible) {
+      svg {
+        animation: boop var(--animation-duration-hover) var(--animation-timing) forwards;
+      }
+    }
+  }
+
+  input {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-s);
+    background-color: light-dark(var(--color-neutral-100), var(--color-neutral-900));
+    padding: var(--space-2xs) var(--space-xs);
+    block-size: 3.5em;
+    font-size: 0.9rem;
+    font-family: monospace;
+  }
+</style>

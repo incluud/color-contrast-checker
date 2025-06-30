@@ -1,4 +1,6 @@
 ---
+import Dots from './Dots.astro'
+
 /**
  * UserInterface Component
  *
@@ -8,59 +10,34 @@
 
 <div class="user-interface">
   <div class="user-interface__header">
-    <div class="dots">
-      <div class="dot dot__red"></div>
-      <div class="dot dot__yellow"></div>
-      <div class="dot dot__green"></div>
-    </div>
+    <Dots />
     <div class="user-interface__header__text">
       <slot name="header" />
     </div>
   </div>
-  <div class="user-interface__body">
+  <div class="user-interface__body" style="view-transition-name: interface-section">
     <slot name="body" />
   </div>
 </div>
 
 <style lang="scss">
+  @use '../assets/scss/base/breakpoint' as *;
   .user-interface {
-    --color-red: #fe5f58;
-    --color-yellow: #ffbc30;
-    --color-green: #26c941;
-
+    margin-inline-start: var(--space-xs);
     border-top: 1px solid var(--border-color-subtle);
     border-left: 1px solid var(--border-color-subtle);
     border-top-left-radius: var(--radius-xl);
     padding: var(--space-xs);
     min-block-size: 100dvh;
 
+    @include breakpoint(m) {
+      margin-inline-start: 0;
+    }
+
     &__header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-    }
-  }
-
-  .dots {
-    display: flex;
-    gap: var(--space-2xs);
-  }
-
-  .dot {
-    border-radius: 50%;
-    inline-size: 1rem;
-    block-size: 1rem;
-
-    &__red {
-      background-color: var(--color-red);
-    }
-
-    &__yellow {
-      background-color: var(--color-yellow);
-    }
-
-    &__green {
-      background-color: var(--color-green);
     }
   }
 </style>
