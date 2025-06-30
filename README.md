@@ -2,7 +2,7 @@
 
 [![Built with Astro](https://astro.badg.es/v2/built-with-astro/small.svg)](https://astro.build)
 
-![color-contrast-checker](https://github.com/user-attachments/assets/01630a5b-10bb-4765-a291-74725fedc04f)
+![color-contrast-checker](https://github.com/user-attachments/assets/a25c18ba-4fb9-43c0-873d-2cc0ff3b8222)
 
 A powerful color contrast checker that validates accessibility compliance against WCAG 2.2 standards. Test any color combination using hex, named colors, RGB, HSL, or other formats. Instantly see if your colors meet AA (4.5:1 for normal text, 3:1 for large text) or AAA (7:1 for normal text, 4.5:1 for large text) contrast requirements. Generate color palettes using the modern OKLCH color space for perceptually uniform brightness, plus export ready-to-use CSS custom properties and Figma-compatible JSON tokens for your design system.
 
