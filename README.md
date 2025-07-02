@@ -6,7 +6,7 @@
 
 A powerful color contrast checker that validates accessibility compliance against WCAG 2.2 standards. Test any color combination using hex, named colors, RGB, HSL, or other formats. Instantly see if your colors meet AA (4.5:1 for normal text, 3:1 for large text) or AAA (7:1 for normal text, 4.5:1 for large text) contrast requirements. Generate color palettes using the modern OKLCH color space for perceptually uniform brightness, plus export ready-to-use CSS custom properties and Figma-compatible JSON tokens for your design system.
 
-[![LIVE DEMO](https://img.shields.io/badge/LIVE_DEMO-4ECCA3?style=for-the-badge&logo=astro&logoColor=black)](https://color-contrast-checker.incluud.dev/) &nbsp;
+[![LIVE DEMO](https://img.shields.io/badge/LIVE_DEMO-4ECCA3?style=for-the-badge&logo=astro&logoColor=black)](https://color-contrast.incluud.dev/) &nbsp;
 [![DOCUMENTATION](https://img.shields.io/badge/DOCUMENTATION-A682FF?style=for-the-badge&logo=astro&logoColor=black)](https://accessible-astro.incluud.dev/) &nbsp;
 [![Sponsor on Open Collective](https://img.shields.io/badge/Open%20Collective-7FADF2?style=for-the-badge&logo=opencollective&logoColor=white)](https://opencollective.com/incluud) &nbsp;
 
