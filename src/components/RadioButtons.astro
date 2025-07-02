@@ -113,12 +113,11 @@ const {
   }
 
   label:focus input ~ .indicator {
-    border-color: var(--color-foreground-base);
+    // border-color: var(--color-foreground-base);
   }
 
   /* Enhanced focus styles for better accessibility */
   input:focus-visible ~ .indicator {
-    @include outline();
-    outline-offset: 2px;
+    @include outline;
   }
 </style>
