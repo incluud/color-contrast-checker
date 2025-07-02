@@ -38,13 +38,13 @@ import { Icon } from 'astro-icon/components'
           </GridBlock>
           <GridBlock label="Accordion" align="center">
             <Accordion>
-              <AccordionItem title="What is WCAG compliance?" variant="chevron">
+              <AccordionItem title="What is WCAG compliance?" variant="chevron" tagName="h2">
                 <p>
                   WCAG (Web Content Accessibility Guidelines) ensures digital content is accessible to people with
                   disabilities, including proper color contrast ratios.
                 </p>
               </AccordionItem>
-              <AccordionItem title="Why does contrast matter?" variant="chevron">
+              <AccordionItem title="Why does contrast matter?" variant="chevron" tagName="h2">
                 <p>
                   Good color contrast helps users with visual impairments, color blindness, and those using devices in
                   bright sunlight read content clearly.
@@ -52,9 +52,9 @@ import { Icon } from 'astro-icon/components'
               </AccordionItem>
             </Accordion>
           </GridBlock>
-          <GridBlock label="Radio buttons" justify="start">
+          <GridBlock label="Radio buttons">
             <RadioButtons
-              legend="Compliance level needed"
+              legend="Compliance levels"
               name="compliance"
               options={[
                 { id: 'aa-normal', label: 'AA Normal Text (4.5:1)', value: 'aa-normal' },
@@ -70,7 +70,7 @@ import { Icon } from 'astro-icon/components'
           <GridBlock label="Color palette" justify="start" align="start">
             <ColorPalette variant="large" />
           </GridBlock>
-          <GridBlock label="Avatar" justify="start">
+          <GridBlock label="Avatar">
             <div class="flex flex-col gap-4">
               <Avatar initials="WC" title="William Charles" subtitle="UX Accessibility Specialist" />
               <Avatar initials="AG" title="Ava Green" subtitle="Inclusive Design Lead" />
@@ -104,29 +104,32 @@ import { Icon } from 'astro-icon/components'
     grid-template-columns: repeat(1, 1fr);
     grid-template-areas:
       'contrast'
-      'button'
+      'palette'
       'badge'
       'accordion'
       'radio'
-      'palette'
+      'button'
       'avatar'
       'progressbar'
       'icon';
     gap: var(--space-2xs);
     margin-block-start: var(--space-s);
+    reading-flow: grid-rows;
 
-    @include breakpoint(550px) {
+    @include breakpoint(920) {
       grid-template-columns: repeat(2, 1fr);
       grid-template-areas:
         'contrast contrast'
         'palette palette'
-        'accordion avatar'
-        'button radio'
+        'accordion accordion'
+        'radio radio'
         'progressbar progressbar'
-        'badge icon';
+        'badge icon'
+        'avatar avatar'
+        'button button';
     }
 
-    @include breakpoint(s) {
+    @include breakpoint(1100) {
       grid-template-columns: repeat(2, 1fr);
       grid-template-areas:
         'contrast contrast'
@@ -140,8 +143,17 @@ import { Icon } from 'astro-icon/components'
     @include breakpoint(xl) {
       grid-template-columns: repeat(12, 1fr);
       grid-template-areas:
+        'button button button icon icon icon accordion accordion accordion accordion accordion accordion'
+        'contrast contrast contrast contrast contrast progressbar progressbar progressbar progressbar progressbar progressbar progressbar'
+        'palette palette palette palette palette palette palette palette palette palette palette palette'
+        'avatar avatar avatar avatar avatar radio radio radio radio badge badge badge';
+    }
+
+    @include breakpoint(xxl) {
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-areas:
         'button button button badge badge accordion accordion accordion accordion radio radio radio'
-        'contrast contrast contrast contrast contrast palette palette palette palette palette palette palette'
+        'contrast contrast contrast contrast contrast contrast palette palette palette palette palette palette'
         'avatar avatar avatar progressbar progressbar progressbar progressbar progressbar progressbar progressbar icon icon';
     }
 
@@ -201,10 +213,19 @@ import { Icon } from 'astro-icon/components'
     }
 
     :global(.title) {
-      padding-block: 0;
+      padding-block: var(--space-2xs);
+      color: var(--color-foreground-base);
       text-decoration-thickness: 2px !important;
 
+      &:where(:hover, :focus-visible) {
+        color: var(--color-foreground-base);
+      }
+
       @include text-decoration(transparent, currentColor);
+    }
+
+    :global(.content) {
+      padding-block-end: var(--space-2xs);
     }
   }
 

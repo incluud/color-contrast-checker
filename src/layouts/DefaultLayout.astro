@@ -133,7 +133,38 @@ const {
         }
       }
 
-      // Temporary fixes for Accessible Astro Components, until package update
+      // @TODO: Temporary fixes for Accessible Astro Components, until package update
+      // Accordion
+      .accordion .title {
+        h2 {
+          justify-content: space-between;
+          line-height: 1.2;
+
+          .icon-chevron {
+            flex-shrink: 0;
+          }
+        }
+
+        .icon-chevron svg {
+          @media (prefers-reduced-motion: no-preference) {
+            transition: transform var(--transition-duration) var(--transition-easing);
+          }
+        }
+      }
+
+      // Avatar
+      .avatar {
+        .shape-rounded {
+          border-radius: 50%;
+        }
+      }
+
+      // Badge
+      .badge {
+        justify-content: center;
+      }
+
+      // Modal
       .modal-close-icon {
         display: inline-block;
         position: relative;
@@ -167,6 +198,18 @@ const {
 
         svg:last-of-type {
           transform: rotate(180deg);
+        }
+      }
+
+      body:has(dialog[open]) {
+        overflow-y: clip;
+      }
+
+      // Notification
+      .notification {
+        svg {
+          inline-size: revert-layer;
+          block-size: revert-layer;
         }
       }
     </style>

@@ -23,7 +23,7 @@ const { label, id } = Astro.props
   <label for={id}>{label}</label>
   <div class="input__field">
     <input type="text" id={id} data-color-input aria-describedby={`${id}-error`} />
-    <input type="color" id={`${id}-picker`} data-color-picker />
+    <input type="color" id={`${id}-picker`} data-color-picker aria-label={`${label} color picker`} />
   </div>
   <div id={`${id}-error`} class="input__error" aria-live="polite"></div>
 </div>
