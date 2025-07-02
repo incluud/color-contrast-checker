@@ -9,7 +9,7 @@ import expressiveCode from 'astro-expressive-code'
 // https://astro.build/config
 export default defineConfig({
   compressHTML: true,
-  site: 'https://accessible-astro-starter.incluud.dev',
+  site: 'https://color-contrast.incluud.dev',
   integrations: [expressiveCode(), mdx(), icon(), compress()],
   vite: {
     css: {

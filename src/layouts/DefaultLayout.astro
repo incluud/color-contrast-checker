@@ -7,7 +7,7 @@ import Footer from '../components/Footer.astro'
 
 const {
   title = 'Color Contrast Checker',
-  description = 'A color contrast checker for Astro with a color palette generator.',
+  description = 'WCAG 2.2 color contrast validator with design system integration. Test accessibility compliance, generate OKLCH palettes, export CSS custom properties and Figma-compatible JSON tokens. Built with Astro.',
   url = Astro.site,
   image = 'social-preview-image.png',
   author = 'Incluud',
@@ -117,6 +117,8 @@ const {
         display: grid;
         grid-template-columns: 1fr;
         gap: var(--space-s);
+        margin-inline: auto;
+        max-width: 1600px;
 
         @include breakpoint(m) {
           grid-template-columns: 375px 1fr;
@@ -128,6 +130,43 @@ const {
           svg {
             animation: boop var(--animation-duration-hover) var(--animation-timing) forwards;
           }
+        }
+      }
+
+      // Temporary fixes for Accessible Astro Components, until package update
+      .modal-close-icon {
+        display: inline-block;
+        position: relative;
+        aspect-ratio: 1;
+        block-size: 20px;
+
+        svg {
+          position: absolute;
+          margin: auto;
+          inset: 0;
+
+          &:first-of-type {
+            transform: rotate(45deg);
+          }
+
+          &:last-of-type {
+            transform: rotate(-45deg);
+
+            @media (prefers-reduced-motion: no-preference) {
+              transition: transform var(--transition-duration) var(--transition-easing);
+            }
+          }
+        }
+      }
+
+      .modal-close button:hover .modal-close-icon,
+      .modal-close button:focus-visible .modal-close-icon {
+        svg:first-of-type {
+          transform: rotate(0deg);
+        }
+
+        svg:last-of-type {
+          transform: rotate(180deg);
         }
       }
     </style>

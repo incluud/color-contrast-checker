@@ -1,10 +1,10 @@
 {
   "name": "color-contrast-checker",
-  "description": "A color contrast checker for Astro with a color palette generator",
+  "description": "WCAG 2.2 color contrast validator with design system integration. Test accessibility compliance, generate OKLCH palettes, export CSS custom properties and Figma-compatible JSON tokens. Built with Astro.",
   "version": "1.0.0",
   "author": "Incluud",
   "license": "MIT",
-  "homepage": "https://color-contrast-checker.incluud.dev/",
+  "homepage": "https://color-contrast.incluud.dev/",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
@@ -13,34 +13,37 @@
   },
   "keywords": [
     "astro",
-    "astro-component",
-    "astro-components",
-    "accessible",
     "accessibility",
-    "a11y",
+    "color-scheme",
+    "color-palette",
     "wcag",
-    "responsive",
-    "ui-library",
-    "ui-components",
-    "blog",
-    "portfolio"
+    "design-tokens",
+    "figma",
+    "css-custom-properties",
+    "design-system",
+    "contrast-ratio",
+    "inclusive-design",
+    "astrojs",
+    "oklch",
+    "oklch-color",
+    "token-studio"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/incluud/accessible-astro-starter.git"
+    "url": "git+https://github.com/incluud/color-contrast-checker.git"
   },
   "bugs": {
-    "url": "https://github.com/incluud/accessible-astro-starter/issues"
+    "url": "https://github.com/incluud/color-contrast-checker/issues"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
-    "@astrojs/mdx": "^4.2.5",
+    "@astrojs/mdx": "^4.3.0",
     "@astrojs/partytown": "^2.1.4",
     "@iconify-json/lucide": "^1.2.39",
     "@types/culori": "^4.0.0",
     "@typescript-eslint/eslint-plugin": "^8.31.0",
     "@typescript-eslint/parser": "^8.31.0",
-    "astro": "^5.7.5",
+    "astro": "^5.10.2",
     "astro-compress": "^2.3.8",
     "astro-icon": "^1.1.5",
     "eslint": "^9.0.0",

@@ -79,22 +79,25 @@ const { label, id } = Astro.props
         )
       }
 
-      // Handle text input changes (only for real-time sync, no validation)
+      // Handle text input changes (real-time sync without overwriting user input)
       function handleTextInputChange(event) {
         const input = event.target
         const value = input.value.trim()
 
-        // Store the current input value
+        // Store the current input value as-is (don't normalize during typing)
         window.storeInputValue(input.id, input.value)
 
         if (!value) return
 
-        // Only sync if it's a valid color (no error display)
+        // Only sync with ColorManager if it's a valid color, but DON'T overwrite the input
         if (colorManager.isValidColor(value)) {
           clearError(input)
 
           const hex = colorManager.toHex(value)
           if (hex) {
+            // Mark this input as actively being edited to prevent circular updates
+            input.dataset.editing = 'true'
+
             // Update color manager
             if (input.id === 'foreground-color') {
               colorManager.setForegroundColor(hex)
@@ -108,11 +111,12 @@ const { label, id } = Astro.props
               if (picker) picker.value = hex
             }
 
-            // Update text input with normalized hex value
-            input.value = hex
-            // Store the normalized value
-            window.storeInputValue(input.id, hex)
+            // Clear the editing flag after a short delay
+            setTimeout(() => {
+              input.dataset.editing = 'false'
+            }, 50)
 
+            // DON'T update the text input value during typing - let user finish editing
             // Notify other components of the change
             notifyColorChange()
           }
@@ -123,6 +127,9 @@ const { label, id } = Astro.props
       function handleTextInputValidation(event) {
         const input = event.target
         const value = input.value.trim()
+
+        // Clear editing flag when user finishes editing
+        input.dataset.editing = 'false'
 
         if (!value) {
           clearError(input)
@@ -219,6 +226,9 @@ const { label, id } = Astro.props
       // Set initial values on the NEW elements
       function setInitialValues() {
         newTextInputs.forEach((input) => {
+          // Initialize editing flag
+          input.dataset.editing = 'false'
+
           // Try localStorage first
           const storedValue = window.getStoredInputValue(input.id)
           if (storedValue) {
@@ -263,21 +273,21 @@ const { label, id } = Astro.props
         const foregroundColor = colorManager.getForegroundColor()
         const backgroundColor = colorManager.getBackgroundColor()
 
-        // Update text inputs
+        // Update text inputs (but skip if currently being edited by user)
         const fgInput = document.getElementById('foreground-color')
         const bgInput = document.getElementById('background-color')
 
-        if (fgInput && fgInput.value !== foregroundColor) {
+        if (fgInput && fgInput.value !== foregroundColor && fgInput.dataset.editing !== 'true') {
           fgInput.value = foregroundColor
           window.storeInputValue(fgInput.id, foregroundColor)
         }
 
-        if (bgInput && bgInput.value !== backgroundColor) {
+        if (bgInput && bgInput.value !== backgroundColor && bgInput.dataset.editing !== 'true') {
           bgInput.value = backgroundColor
           window.storeInputValue(bgInput.id, backgroundColor)
         }
 
-        // Update color pickers
+        // Update color pickers (these don't need the editing check)
         const fgPicker = document.getElementById('foreground-color-picker')
         const bgPicker = document.getElementById('background-color-picker')
 
