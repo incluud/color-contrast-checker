@@ -38,7 +38,7 @@ A powerful color contrast checker that validates accessibility compliance agains
 ## Accessibility Features
 
 - Real-time contrast ratio calculation with visual feedback
-- Star rating system for intuitive WCAG compliance understanding
+- Pass/fail badge system for intuitive WCAG compliance understanding
 - Screen reader announcements for all color changes and interactions
 - Keyboard-accessible color picker and text input synchronization
 - Focus preservation during Astro view transitions
