@@ -4,6 +4,7 @@ import '../assets/scss/index.scss'
 import SiteMeta from '../components/SiteMeta.astro'
 import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
+import { ClientRouter } from 'astro:transitions'
 
 const {
   title = 'Color Contrast Checker',
@@ -24,6 +25,9 @@ const {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <SiteMeta title={title} description={description.substring(0, 100)} url={url} image={image} author={author} />
+
+    <!-- Enable Astro View Transitions for all browsers -->
+    <ClientRouter />
   </head>
   <body>
     <Header />
