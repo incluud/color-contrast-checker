@@ -186,7 +186,25 @@ import { Icon } from 'astro-icon/components'
       &:nth-child(6) {
         grid-area: palette;
 
-        @include breakpoint(xxl) {
+        block-size: 200px;
+        min-block-size: auto;
+
+        @include breakpoint(600) {
+          block-size: 250px;
+          min-block-size: auto;
+        }
+
+        @include breakpoint(s) {
+          block-size: 200px;
+          min-block-size: auto;
+        }
+
+        @include breakpoint(900) {
+          block-size: 250px;
+          min-block-size: auto;
+        }
+
+        @include breakpoint(1100) {
           block-size: 290px;
           min-block-size: auto;
         }
