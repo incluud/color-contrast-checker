@@ -41,35 +41,6 @@ const {
       import('../scripts/global-color-manager.ts')
     </script>
 
-    <!-- Scroll position preservation for view transitions -->
-    <script is:inline>
-      // Store scroll position before page swap
-      let storedScrollPosition = 0
-
-      // Before navigation (page being unloaded)
-      window.addEventListener('pageswap', (event) => {
-        // Store the current scroll position
-        storedScrollPosition = window.scrollY
-      })
-
-      // After navigation (new page loaded)
-      window.addEventListener('pagereveal', (event) => {
-        // Only restore scroll position if we have one stored
-        // and if this is a same-origin navigation (view transition)
-        if (storedScrollPosition > 0 && event.viewTransition) {
-          // Wait for the view transition to be ready, then restore scroll
-          event.viewTransition.ready.then(() => {
-            window.scrollTo({
-              top: storedScrollPosition,
-              behavior: 'instant', // Use instant to avoid conflicting with the slide animation
-            })
-            // Reset stored position
-            storedScrollPosition = 0
-          })
-        }
-      })
-    </script>
-
     <style lang="scss" is:global>
       @use '../assets/scss/base/breakpoint' as *;
 
