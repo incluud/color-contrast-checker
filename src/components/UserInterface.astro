@@ -34,6 +34,11 @@ import Dots from './Dots.astro'
       margin-inline-start: 0;
     }
 
+    @include breakpoint(xxl) {
+      border-right: 1px solid var(--border-color-subtle);
+      border-top-right-radius: var(--radius-xl);
+    }
+
     &__header {
       display: flex;
       justify-content: space-between;
